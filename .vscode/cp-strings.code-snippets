@@ -1,0 +1,263 @@
+{
+  "Z-Algorithm": {
+    "prefix": [
+      "cp-z-algo",
+      "cp-z-algorithm"
+    ],
+    "body": [
+      "// z[i] = LCP(s, s[i..]), z[0] = 0.",
+      "inline vector<int> z_function(const string &s) {",
+      "    int n = s.size();",
+      "    vector<int> z(n, 0);",
+      "    for (int i = 1, l = 0, r = 0; i < n; i++) {",
+      "        if (i < r) z[i] = min(r - i, z[i - l]);",
+      "        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) z[i]++;",
+      "        if (i + z[i] > r) l = i, r = i + z[i];",
+      "    }",
+      "    return z;",
+      "}"
+    ],
+    "description": "Computes the array z where z[i] is the length of the longest common prefix between string s and the suffix starting at s[i]. Runs in purely linear time using a two-pointer [l, r] matching interval. | Complexity: - **T..."
+  },
+  "Prefix Function & KMP Pattern Search": {
+    "prefix": [
+      "cp-kmp",
+      "cp-prefix-function"
+    ],
+    "body": [
+      "inline vector<int> prefix_function(const string &s) {",
+      "    int n = s.size();",
+      "    vector<int> pi(n, 0);",
+      "    for (int i = 1; i < n; i++) {",
+      "        int k = pi[i - 1];",
+      "        while (k > 0 && s[i] != s[k]) k = pi[k - 1];",
+      "        if (s[i] == s[k]) k++;",
+      "        pi[i] = k;",
+      "    }",
+      "    return pi;",
+      "}",
+      "",
+      "// All 0-indexed start positions where `pat` occurs in `text`.",
+      "inline vector<int> kmp_find_all(const string &text, const string &pat) {",
+      "    vector<int> res;",
+      "    if (pat.empty()) return res;",
+      "    auto pi = prefix_function(pat + '\\x01' + text);",
+      "    int m = pat.size();",
+      "    for (size_t i = m + 1; i < pi.size(); i++)",
+      "        if (pi[i] == m) res.push_back(i - 2 * m);",
+      "    return res;",
+      "}"
+    ],
+    "description": "Computes the Knuth-Morris-Pratt failure function \\pi, where \\pi[i] is the length of the longest proper prefix of s[0..i] that is also a suffix of s[0..i]. kmp_find_all(text, pat) finds all 0-indexed starting occurrenc..."
+  },
+  "Manacher’s Algorithm": {
+    "prefix": [
+      "cp-manacher"
+    ],
+    "body": [
+      "inline void manacher(const string &s, vector<int> &d1, vector<int> &d2) {",
+      "    int n = s.size();",
+      "    d1.assign(n, 0), d2.assign(n, 0);",
+      "    for (int i = 0, l = 0, r = -1; i < n; i++) {",
+      "        int k = (i > r) ? 1 : min(d1[l + r - i], r - i + 1);",
+      "        while (i - k >= 0 && i + k < n && s[i - k] == s[i + k]) k++;",
+      "        d1[i] = k--;",
+      "        if (i + k > r) l = i - k, r = i + k;",
+      "    }",
+      "    for (int i = 0, l = 0, r = -1; i < n; i++) {",
+      "        int k = (i > r) ? 0 : min(d2[l + r - i + 1], r - i + 1);",
+      "        while (i - k - 1 >= 0 && i + k < n && s[i - k - 1] == s[i + k]) k++;",
+      "        d2[i] = k--;",
+      "        if (i + k > r) l = i - k - 1, r = i + k;",
+      "    }",
+      "}"
+    ],
+    "description": "Finds all sub-palindromes in a string in linear time without dummy character insertions: - d1[i]: Radius of odd-length palindrome centered at character i (including the center). - d2[i]: Radius of even-length palindro..."
+  },
+  "Rolling Hash mod 2^{61}-1": {
+    "prefix": [
+      "cp-rolling-hash",
+      "cp-string-hash"
+    ],
+    "body": [
+      "struct RollingHash {",
+      "    static const ull M = (1ULL << 61) - 1;",
+      "    vector<ull> h, p;",
+      "    static ull mul(ull a, ull b) { return (ull)((unsigned __int128)a * b % M); }",
+      "    RollingHash(const string &s = \"\") : h(s.size() + 1, 0), p(s.size() + 1, 1) {",
+      "        static const ull base = []() {",
+      "            mt19937_64 g(chrono::steady_clock::now().time_since_epoch().count());",
+      "            return g() % (M - 1000) + 500;",
+      "        }();",
+      "        for (size_t i = 0; i < s.size(); i++) {",
+      "            h[i + 1] = (mul(h[i], base) + (ull)(unsigned char)s[i]) % M;",
+      "            p[i + 1] = mul(p[i], base);",
+      "        }",
+      "    }",
+      "    ull get(int l, int r) const { return (h[r] + M - mul(h[l], p[r - l])) % M; }",
+      "};"
+    ],
+    "description": "Computes polynomial rolling hashes of all prefixes modulo the Mersenne prime M = 2^{61}-1 using a randomized base. Allows O(1) equality checks on arbitrary substrings s[l..r-1] with negligible collision probability. |..."
+  },
+  "Suffix Array & Kasai LCP": {
+    "prefix": [
+      "cp-suffix-array",
+      "cp-lcp"
+    ],
+    "body": [
+      "struct SuffixArray {",
+      "    int n;",
+      "    vector<int> sa, rnk, lcp;",
+      "    SuffixArray(const string &s = \"\") : n(s.size()), sa(s.size()), rnk(s.size()), lcp(s.size(), 0) {",
+      "        vector<int> tmp(n);",
+      "        iota(sa.begin(), sa.end(), 0);",
+      "        for (int i = 0; i < n; i++) rnk[i] = (unsigned char)s[i];",
+      "        for (int k = 1;; k <<= 1) {",
+      "            auto cmp = [&](int a, int b) {",
+      "                if (rnk[a] != rnk[b]) return rnk[a] < rnk[b];",
+      "                int ra = a + k < n ? rnk[a + k] : -1, rb = b + k < n ? rnk[b + k] : -1;",
+      "                return ra < rb;",
+      "            };",
+      "            sort(sa.begin(), sa.end(), cmp);",
+      "            tmp[sa[0]] = 0;",
+      "            for (int i = 1; i < n; i++) tmp[sa[i]] = tmp[sa[i - 1]] + cmp(sa[i - 1], sa[i]);",
+      "            rnk = tmp;",
+      "            if (n == 0 || rnk[sa[n - 1]] == n - 1) break;",
+      "        }",
+      "        for (int i = 0, h = 0; i < n; i++) {",
+      "            if (rnk[i] == n - 1) { h = 0; continue; }",
+      "            int j = sa[rnk[i] + 1];",
+      "            while (i + h < n && j + h < n && s[i + h] == s[j + h]) h++;",
+      "            lcp[rnk[i]] = h;",
+      "            if (h) h--;",
+      "        }",
+      "    }",
+      "    ll count_distinct_substrings() const {",
+      "        ll total = (ll)n * (n + 1) / 2;",
+      "        for (int i = 0; i + 1 < n; i++) total -= lcp[i];",
+      "        return total;",
+      "    }",
+      "};"
+    ],
+    "description": "Sorts all suffixes of string s lexicographically: - sa[i]: Start index of the ith smallest suffix. - rnk[i]: Lexicographical rank of the suffix starting at index i. - lcp[i]: Length of the longest common prefix betwee..."
+  },
+  "Aho-Corasick Automaton": {
+    "prefix": [
+      "cp-aho-corasick"
+    ],
+    "body": [
+      "struct AhoCorasick {",
+      "    struct Node { int nxt[26], fail = 0; Node() { fill(nxt, nxt + 26, -1); } };",
+      "    vector<Node> t;",
+      "    vector<int> end_node, bfs_order;",
+      "    AhoCorasick() { t.emplace_back(); }",
+      "    int add(const string &s) {",
+      "        int u = 0;",
+      "        for (char ch : s) {",
+      "            int c = ch - 'a';",
+      "            if (t[u].nxt[c] < 0) t[u].nxt[c] = t.size(), t.emplace_back();",
+      "            u = t[u].nxt[c];",
+      "        }",
+      "        end_node.push_back(u);",
+      "        return end_node.size() - 1;",
+      "    }",
+      "    void build() {",
+      "        queue<int> q;",
+      "        for (int c = 0; c < 26; c++) {",
+      "            if (t[0].nxt[c] < 0) t[0].nxt[c] = 0;",
+      "            else t[t[0].nxt[c]].fail = 0, q.push(t[0].nxt[c]);",
+      "        }",
+      "        while (!q.empty()) {",
+      "            int u = q.front();",
+      "            q.pop(), bfs_order.push_back(u);",
+      "            for (int c = 0; c < 26; c++) {",
+      "                int v = t[u].nxt[c];",
+      "                if (v < 0) t[u].nxt[c] = t[t[u].fail].nxt[c];",
+      "                else t[v].fail = t[t[u].fail].nxt[c], q.push(v);",
+      "            }",
+      "        }",
+      "    }",
+      "    vector<ll> count_occurrences(const string &text) const {",
+      "        vector<ll> visit(t.size(), 0);",
+      "        int u = 0;",
+      "        for (char ch : text) u = t[u].nxt[ch - 'a'], visit[u]++;",
+      "        for (int i = (int)bfs_order.size() - 1; i >= 0; i--)",
+      "            visit[t[bfs_order[i]].fail] += visit[bfs_order[i]];",
+      "        vector<ll> res(end_node.size());",
+      "        for (size_t i = 0; i < end_node.size(); i++) res[i] = visit[end_node[i]];",
+      "        return res;",
+      "    }",
+      "};"
+    ],
+    "description": "Constructs a trie with BFS failure links over a dictionary of pattern strings. Counts total occurrences of all patterns in a text string in linear time. | Complexity: - **Build Time:** O(\\sum |P| · |\\Sigma|) - **Searc..."
+  },
+  "Smallest Cyclic Shift (Minimum Rotation)": {
+    "prefix": [
+      "cp-min-rotation",
+      "cp-booth-algo"
+    ],
+    "body": [
+      "inline int min_rotation(const string &s) {",
+      "    int n = s.size();",
+      "    if (n == 0) return 0;",
+      "    int i = 0, j = 1, k = 0;",
+      "    while (i < n && j < n && k < n) {",
+      "        char a = s[(i + k) % n], b = s[(j + k) % n];",
+      "        if (a == b) { k++; continue; }",
+      "        if (a > b) i += k + 1; else j += k + 1;",
+      "        if (i == j) j++;",
+      "        k = 0;",
+      "    }",
+      "    return min(i, j);",
+      "}"
+    ],
+    "description": "Finds the starting index of the lexicographically smallest circular shift of string s in linear time and O(1) auxiliary space. | Complexity: - **Time Complexity:** O(n) - **Space Complexity:** O(1)"
+  },
+  "Lyndon Factorization (Duval’s Algorithm)": {
+    "prefix": [
+      "cp-lyndon",
+      "cp-lyndon-duval"
+    ],
+    "body": [
+      "inline vector<int> lyndon_factorization(const string &s) {",
+      "    int n = s.size(), i = 0;",
+      "    vector<int> starts;",
+      "    while (i < n) {",
+      "        int j = i + 1, k = i;",
+      "        while (j < n && s[k] <= s[j]) k = (s[k] < s[j]) ? i : k + 1, j++;",
+      "        while (i <= k) starts.push_back(i), i += j - k;",
+      "    }",
+      "    return starts;",
+      "}"
+    ],
+    "description": "Partitions a string into a non-increasing sequence of Lyndon words (strings strictly smaller than all of their proper suffixes) in linear time. | Complexity: - **Time Complexity:** O(n) - **Space Complexity:** O(n)"
+  },
+  "Boyer-Moore-Horspool Algorithm": {
+    "prefix": [
+      "cp-boyer-moore",
+      "cp-horspool"
+    ],
+    "body": [
+      "int boyerMooreHorspoolSearch(const string& text, const string& pattern) {",
+      "    int n = text.size(), m = pattern.size();",
+      "    if (m > n) return -1;",
+      "    if (m == 0) return 0;",
+      "",
+      "    vector<int> shift(256, m);",
+      "    for (int i = 0; i < m - 1; i++) {",
+      "        shift[(unsigned char)pattern[i]] = m - 1 - i;",
+      "    }",
+      "",
+      "    int i = 0;",
+      "    while (i <= n - m) {",
+      "        int j = m - 1;",
+      "        while (j >= 0 && pattern[j] == text[i + j]) j--;",
+      "        if (j < 0) return i; // Match found at index i",
+      "        i += shift[(unsigned char)text[i + m - 1]];",
+      "    }",
+      "    return -1;",
+      "}"
+    ],
+    "description": "Sub-linear substring search algorithm on natural language texts. Compares the pattern from right to left and uses a bad-character shift table to skip sections of the text upon mismatch. | Complexity: - **Time Complexi..."
+  }
+}

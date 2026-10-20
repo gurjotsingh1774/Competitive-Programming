@@ -1,0 +1,376 @@
+{
+  "Binary Search on Monotone Predicates": {
+    "prefix": [
+      "cp-binary-search-monotone",
+      "cp-binsearch-pred",
+      "cp-first-true"
+    ],
+    "body": [
+      "// first_true: smallest x with pred(x) true (pred is false...false true...true); hi + 1 if none.",
+      "template <class P> ll first_true(ll lo, ll hi, P pred) {",
+      "    ll l = lo, r = hi + 1;",
+      "    while (l < r) {",
+      "        ll m = l + (r - l) / 2;",
+      "        if (pred(m)) r = m;",
+      "        else l = m + 1;",
+      "    }",
+      "    return l;",
+      "}",
+      "",
+      "// last_true: largest x with pred(x) true (pred is true...true false...false); lo - 1 if none.",
+      "template <class P> ll last_true(ll lo, ll hi, P pred) {",
+      "    ll l = lo - 1, r = hi;",
+      "    while (l < r) {",
+      "        ll m = l + (r - l + 1) / 2;",
+      "        if (pred(m)) l = m;",
+      "        else r = m - 1;",
+      "    }",
+      "    return l;",
+      "}"
+    ],
+    "description": "Binary search over an integer interval [lo, hi] evaluates a monotonic predicate pred(x) to find the transition point in logarithmic time without off-by-one errors. - **first_true(lo, hi, pred)**: Smallest x where pred..."
+  },
+  "Ternary Search": {
+    "prefix": [
+      "cp-ternary-search"
+    ],
+    "body": [
+      "// Ternary search for the integer minimum of a unimodal function",
+      "template <class F> ll ternary_min_int(ll lo, ll hi, F f) {",
+      "    while (hi - lo > 2) {",
+      "        ll m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;",
+      "        if (f(m1) <= f(m2)) hi = m2;",
+      "        else lo = m1;",
+      "    }",
+      "    ll best = lo;",
+      "    for (ll x = lo + 1; x <= hi; x++)",
+      "        if (f(x) < f(best)) best = x;",
+      "    return best;",
+      "}",
+      "",
+      "// Ternary search for the floating-point minimum of a unimodal function",
+      "template <class F> double ternary_min_real(double lo, double hi, F f, int iters = 100) {",
+      "    for (int i = 0; i < iters; i++) {",
+      "        double m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;",
+      "        if (f(m1) < f(m2)) hi = m2;",
+      "        else lo = m1;",
+      "    }",
+      "    return (lo + hi) / 2;",
+      "}"
+    ],
+    "description": "Finds the global minimum of a strictly unimodal function (strictly decreasing then strictly increasing). - In each step, evaluates points m_1 = lo + \\frac{hi-lo}{3} and m_2 = hi - \\frac{hi-lo}{3}, narrowing the search..."
+  },
+  "Inversion Counting via Merge Sort": {
+    "prefix": [
+      "cp-inversion-counting",
+      "cp-inversions"
+    ],
+    "body": [
+      "// Inversions (pairs i < j with a[i] > a[j]) by merge sort. O(n log n).",
+      "template <class T> ll inversion_count(vector<T> a) {",
+      "    vector<T> buf(a.size());",
+      "    function<ll(int, int)> rec = [&](int l, int r) -> ll {",
+      "        if (r - l < 2) return 0;",
+      "        int m = (l + r) / 2;",
+      "        ll res = rec(l, m) + rec(m, r);",
+      "        int i = l, j = m, k = l;",
+      "        while (i < m || j < r) {",
+      "            if (j >= r || (i < m && !(a[j] < a[i]))) buf[k++] = a[i++];",
+      "            else res += m - i, buf[k++] = a[j++];",
+      "        }",
+      "        copy(buf.begin() + l, buf.begin() + r, a.begin() + l);",
+      "        return res;",
+      "    };",
+      "    return rec(0, a.size());",
+      "}"
+    ],
+    "description": "Counts the total number of inverted pairs (i < j with a[i] > a[j]). Uses a divide-and-conquer merge sort: whenever an element from the right half is placed before an element from the left half, it forms inversions wit..."
+  },
+  "Linear Search": {
+    "prefix": [
+      "cp-linear-search"
+    ],
+    "body": [
+      "int linearSearch(const vector<int>& arr, int target) {",
+      "    for (size_t i = 0; i < arr.size(); i++) {",
+      "        if (arr[i] == target) return (int)i;",
+      "    }",
+      "    return -1;",
+      "}"
+    ],
+    "description": "Sequentially checks every element of a collection from index 0 to n-1 until a match is found or the end of the array is reached. Does not require the array to be sorted. | Complexity: - **Time Complexity:** O(n) - **S..."
+  },
+  "Binary Search": {
+    "prefix": [
+      "cp-binary-search"
+    ],
+    "body": [
+      "int binarySearch(const vector<int>& arr, int target) {",
+      "    int low = 0, high = (int)arr.size() - 1;",
+      "    while (low <= high) {",
+      "        int mid = low + (high - low) / 2;",
+      "        if (arr[mid] == target) return mid;",
+      "        if (arr[mid] < target) low = mid + 1;",
+      "        else high = mid - 1;",
+      "    }",
+      "    return -1;",
+      "}"
+    ],
+    "description": "Searches for a target value within a monotonically sorted array by repeatedly comparing the target to the middle element and halving the search space. | Complexity: - **Time Complexity:** O(log n) - **Space Complexity..."
+  },
+  "Fibonacci Search": {
+    "prefix": [
+      "cp-fibonacci-search",
+      "cp-fib-search"
+    ],
+    "body": [
+      "int fibonacciSearch(const vector<int>& arr, int x) {",
+      "    int n = arr.size();",
+      "    int fib2 = 0;          // (m-2)'th Fibonacci number",
+      "    int fib1 = 1;          // (m-1)'th Fibonacci number",
+      "    int fibM = fib2 + fib1;// m'th Fibonacci number",
+      "",
+      "    while (fibM < n) {",
+      "        fib2 = fib1;",
+      "        fib1 = fibM;",
+      "        fibM = fib2 + fib1;",
+      "    }",
+      "",
+      "    int offset = -1;",
+      "    while (fibM > 1) {",
+      "        int i = min(offset + fib2, n - 1);",
+      "        if (arr[i] < x) {",
+      "            fibM = fib1;",
+      "            fib1 = fib2;",
+      "            fib2 = fibM - fib1;",
+      "            offset = i;",
+      "        } else if (arr[i] > x) {",
+      "            fibM = fib2;",
+      "            fib1 = fib1 - fib2;",
+      "            fib2 = fibM - fib1;",
+      "        } else {",
+      "            return i;",
+      "        }",
+      "    }",
+      "    if (fib1 && offset + 1 < n && arr[offset + 1] == x) return offset + 1;",
+      "    return -1;",
+      "}"
+    ],
+    "description": "A comparison-based search for sorted arrays that divides the search space using Fibonacci numbers rather than powers of two. Operates only with addition and subtraction (avoiding division operations or bit shifts), wh..."
+  },
+  "Selection Sort": {
+    "prefix": [
+      "cp-selection-sort"
+    ],
+    "body": [
+      "void selectionSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 0; i < n - 1; i++) {",
+      "        int minIdx = i;",
+      "        for (int j = i + 1; j < n; j++) {",
+      "            if (arr[j] < arr[minIdx]) minIdx = j;",
+      "        }",
+      "        if (minIdx != i) swap(arr[i], arr[minIdx]);",
+      "    }",
+      "}"
+    ],
+    "description": "Iteratively selects the minimum element from the unsorted suffix and swaps it with the first unsorted position. It minimizes total swaps (O(n) swaps total) but always performs O(n^2) comparisons regardless of initial ..."
+  },
+  "Insertion Sort": {
+    "prefix": [
+      "cp-insertion-sort"
+    ],
+    "body": [
+      "void insertionSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 1; i < n; i++) {",
+      "        int key = arr[i];",
+      "        int j = i - 1;",
+      "        while (j >= 0 && arr[j] > key) {",
+      "            arr[j + 1] = arr[j];",
+      "            j--;",
+      "        }",
+      "        arr[j + 1] = key;",
+      "    }",
+      "}"
+    ],
+    "description": "Maintains a sorted prefix and inserts each subsequent element into its correct location by shifting larger elements one position to the right. Highly efficient on tiny arrays or nearly sorted data (O(n) best case). | ..."
+  },
+  "Bubble Sort": {
+    "prefix": [
+      "cp-bubble-sort"
+    ],
+    "body": [
+      "void bubbleSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 0; i < n - 1; i++) {",
+      "        bool swapped = false;",
+      "        for (int j = 0; j < n - i - 1; j++) {",
+      "            if (arr[j] > arr[j + 1]) {",
+      "                swap(arr[j], arr[j + 1]);",
+      "                swapped = true;",
+      "            }",
+      "        }",
+      "        if (!swapped) break;",
+      "    }",
+      "}"
+    ],
+    "description": "Repeatedly steps through the list, comparing adjacent items and swapping them if out of order. With an early exit flag (swapped), it terminates in O(n) if the array is already sorted. | Complexity: - **Time Complexity..."
+  },
+  "Quick Sort": {
+    "prefix": [
+      "cp-quick-sort"
+    ],
+    "body": [
+      "int partition(vector<int>& arr, int low, int high) {",
+      "    int pivot = arr[high];",
+      "    int i = low - 1;",
+      "    for (int j = low; j < high; j++) {",
+      "        if (arr[j] < pivot) {",
+      "            i++;",
+      "            swap(arr[i], arr[j]);",
+      "        }",
+      "    }",
+      "    swap(arr[i + 1], arr[high]);",
+      "    return i + 1;",
+      "}",
+      "",
+      "void quickSort(vector<int>& arr, int low, int high) {",
+      "    if (low < high) {",
+      "        int pi = partition(arr, low, high);",
+      "        quickSort(arr, low, pi - 1);",
+      "        quickSort(arr, pi + 1, high);",
+      "    }",
+      "}"
+    ],
+    "description": "Divide-and-conquer algorithm that selects a pivot element and partitions the array into values smaller than the pivot and values larger than the pivot, then recursively sorts both subarrays. | Complexity: - **Time Com..."
+  },
+  "Heap Sort": {
+    "prefix": [
+      "cp-heap-sort"
+    ],
+    "body": [
+      "void heapify(vector<int>& arr, int n, int i) {",
+      "    int largest = i;",
+      "    int l = 2 * i + 1, r = 2 * i + 2;",
+      "    if (l < n && arr[l] > arr[largest]) largest = l;",
+      "    if (r < n && arr[r] > arr[largest]) largest = r;",
+      "    if (largest != i) {",
+      "        swap(arr[i], arr[largest]);",
+      "        heapify(arr, n, largest);",
+      "    }",
+      "}",
+      "",
+      "void heapSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);",
+      "    for (int i = n - 1; i > 0; i--) {",
+      "        swap(arr[0], arr[i]);",
+      "        heapify(arr, i, 0);",
+      "    }",
+      "}"
+    ],
+    "description": "Builds a max-heap from the input array in O(n) time. Repeatedly extracts the maximum element (root), moves it to the end of the array, and sifts down the new root. | Complexity: - **Time Complexity:** O(n log n) (Best..."
+  },
+  "Merge Sort": {
+    "prefix": [
+      "cp-merge-sort"
+    ],
+    "body": [
+      "void merge(vector<int>& arr, int l, int m, int r) {",
+      "    int n1 = m - l + 1, n2 = r - m;",
+      "    vector<int> L(n1), R(n2);",
+      "    for (int i = 0; i < n1; i++) L[i] = arr[l + i];",
+      "    for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];",
+      "    int i = 0, j = 0, k = l;",
+      "    while (i < n1 && j < n2) {",
+      "        if (L[i] <= R[j]) arr[k++] = L[i++];",
+      "        else arr[k++] = R[j++];",
+      "    }",
+      "    while (i < n1) arr[k++] = L[i++];",
+      "    while (j < n2) arr[k++] = R[j++];",
+      "}",
+      "",
+      "void mergeSort(vector<int>& arr, int l, int r) {",
+      "    if (l < r) {",
+      "        int m = l + (r - l) / 2;",
+      "        mergeSort(arr, l, m);",
+      "        mergeSort(arr, m + 1, r);",
+      "        merge(arr, l, m, r);",
+      "    }",
+      "}"
+    ],
+    "description": "Recursively splits the array into halves, sorts each half, and merges the two sorted subarrays in linear time using a temporary buffer. | Complexity: - **Time Complexity:** O(n log n) (Best, Average, Worst) - **Space ..."
+  },
+  "Counting Sort": {
+    "prefix": [
+      "cp-counting-sort"
+    ],
+    "body": [
+      "void countingSort(vector<int>& arr) {",
+      "    if (arr.empty()) return;",
+      "    int maxVal = *max_element(arr.begin(), arr.end());",
+      "    int minVal = *min_element(arr.begin(), arr.end());",
+      "    int range = maxVal - minVal + 1;",
+      "",
+      "    vector<int> count(range, 0), output(arr.size());",
+      "    for (int x : arr) count[x - minVal]++;",
+      "    for (int i = 1; i < range; i++) count[i] += count[i - 1];",
+      "    for (int i = arr.size() - 1; i >= 0; i--) {",
+      "        output[count[arr[i] - minVal] - 1] = arr[i];",
+      "        count[arr[i] - minVal]--;",
+      "    }",
+      "    arr = output;",
+      "}"
+    ],
+    "description": "Non-comparison integer sorting algorithm. Computes the frequency of each element within a bounded range [0, K], computes cumulative counts, and places elements directly into their sorted positions. | Complexity: - **T..."
+  },
+  "Radix Sort": {
+    "prefix": [
+      "cp-radix-sort"
+    ],
+    "body": [
+      "void countSortForRadix(vector<int>& arr, int exp) {",
+      "    vector<int> output(arr.size());",
+      "    int count[10] = {0};",
+      "    for (int x : arr) count[(x / exp) % 10]++;",
+      "    for (int i = 1; i < 10; i++) count[i] += count[i - 1];",
+      "    for (int i = arr.size() - 1; i >= 0; i--) {",
+      "        output[count[(arr[i] / exp) % 10] - 1] = arr[i];",
+      "        count[(arr[i] / exp) % 10]--;",
+      "    }",
+      "    arr = output;",
+      "}",
+      "",
+      "void radixSort(vector<int>& arr) {",
+      "    if (arr.empty()) return;",
+      "    int maxVal = *max_element(arr.begin(), arr.end());",
+      "    for (int exp = 1; maxVal / exp > 0; exp *= 10)",
+      "        countSortForRadix(arr, exp);",
+      "}"
+    ],
+    "description": "Sorts non-negative integers digit by digit from least significant digit (LSD) to most significant digit using a stable counting sort subroutine for each base-10 digit. | Complexity: - **Time Complexity:** O(d · (n + b..."
+  },
+  "Bucket Sort": {
+    "prefix": [
+      "cp-bucket-sort"
+    ],
+    "body": [
+      "void bucketSort(vector<float>& arr) {",
+      "    int n = arr.size();",
+      "    if (n <= 1) return;",
+      "    vector<vector<float>> b(n);",
+      "    for (int i = 0; i < n; i++) {",
+      "        int bi = min((int)(n * arr[i]), n - 1);",
+      "        b[bi].push_back(arr[i]);",
+      "    }",
+      "    for (int i = 0; i < n; i++) sort(b[i].begin(), b[i].end());",
+      "    int idx = 0;",
+      "    for (int i = 0; i < n; i++) {",
+      "        for (float val : b[i]) arr[idx++] = val;",
+      "    }",
+      "}"
+    ],
+    "description": "Distributes elements across n uniform buckets based on their values. Each bucket is sorted individually (often with insertion sort), and all buckets are concatenated. | Complexity: - **Time Complexity:** O(n) average ..."
+  }
+}

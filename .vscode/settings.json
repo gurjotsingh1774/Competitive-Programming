@@ -1,27 +1,17 @@
 {
-  "editor.snippetSuggestions": "top",
+  "editor.snippetSuggestions": "inline",
   "editor.suggest.showSnippets": true,
   "editor.suggestSelection": "first",
   "editor.tabCompletion": "on",
-  "editor.acceptSuggestionOnEnter": "on",
-  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.acceptSuggestionOnEnter": "smart",
+  "editor.suggest.snippetsPreventQuickSuggestions": true,
   "editor.quickSuggestions": {
     "other": "on",
     "comments": "off",
     "strings": "off"
   },
   "[cpp]": {
-    "editor.snippetSuggestions": "top",
-    "editor.suggest.showSnippets": true,
-    "editor.suggestSelection": "first",
-    "editor.tabCompletion": "on",
-    "editor.acceptSuggestionOnEnter": "on",
-    "editor.suggest.snippetsPreventQuickSuggestions": false,
-    "editor.quickSuggestions": {
-      "other": "on",
-      "comments": "off",
-      "strings": "off"
-    },
     "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?"
   }
 }
+

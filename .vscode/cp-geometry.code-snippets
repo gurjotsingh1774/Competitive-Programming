@@ -1,0 +1,213 @@
+{
+  "Integer Points & Vector Operations": {
+    "prefix": [
+      "cp-geometry-point",
+      "cp-point-2d"
+    ],
+    "body": [
+      "struct Pt {",
+      "    ll x = 0, y = 0;",
+      "    Pt() {}",
+      "    Pt(ll x_, ll y_) : x(x_), y(y_) {}",
+      "    Pt operator+(const Pt &o) const { return {x + o.x, y + o.y}; }",
+      "    Pt operator-(const Pt &o) const { return {x - o.x, y - o.y}; }",
+      "    bool operator==(const Pt &o) const { return x == o.x && y == o.y; }",
+      "    bool operator<(const Pt &o) const { return x != o.x ? x < o.x : y < o.y; }",
+      "};",
+      "",
+      "inline ll cross(Pt a, Pt b) { return a.x * b.y - a.y * b.x; }",
+      "inline ll cross(Pt o, Pt a, Pt b) { return cross(a - o, b - o); }",
+      "inline ll dot(Pt a, Pt b) { return a.x * b.x + a.y * b.y; }",
+      "inline ll dist2(Pt a, Pt b) { return dot(a - b, a - b); }",
+      "inline int sgn(ll v) { return (v > 0) - (v < 0); }"
+    ],
+    "description": "Integer arithmetic avoids floating-point roundoff errors. Coordinates up to |x|, |y| ≤ 10^9 guarantee that dot and cross products fit inside signed 64-bit integers (ll). - **cross(a, b)**: a.x · b.y - a.y · b.x. - **c..."
+  },
+  "Convex Hull (Andrew’s Monotone Chain)": {
+    "prefix": [
+      "cp-convex-hull",
+      "cp-monotone-chain"
+    ],
+    "body": [
+      "// Returns counter-clockwise hull, lowest-leftmost first. No collinear points.",
+      "inline vector<Pt> convex_hull(vector<Pt> p) {",
+      "    sort(p.begin(), p.end());",
+      "    p.erase(unique(p.begin(), p.end()), p.end());",
+      "    int n = p.size();",
+      "    if (n <= 2) return p;",
+      "    vector<Pt> h(2 * n);",
+      "    int k = 0;",
+      "    for (int i = 0; i < n; i++) {",
+      "        while (k >= 2 && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;",
+      "        h[k++] = p[i];",
+      "    }",
+      "    for (int i = n - 2, t = k + 1; i >= 0; i--) {",
+      "        while (k >= t && cross(h[k - 2], h[k - 1], p[i]) <= 0) k--;",
+      "        h[k++] = p[i];",
+      "    }",
+      "    h.resize(k - 1);",
+      "    return h;",
+      "}"
+    ],
+    "description": "Computes the strictly enclosing convex hull of a set of 2D points. Sorts points by x then y, builds lower and upper hulls in counter-clockwise order, and discards interior and collinear points. | Complexity: - **Time ..."
+  },
+  "Polygon Area (Shoelace Formula)": {
+    "prefix": [
+      "cp-shoelace",
+      "cp-shoelace-formula",
+      "cp-polygon-area"
+    ],
+    "body": [
+      "// Twice the signed area (positive for counter-clockwise polygons).",
+      "inline ll polygon_area2(const vector<Pt> &p) {",
+      "    ll s = 0;",
+      "    for (size_t i = 0; i < p.size(); i++)",
+      "        s += cross(p[i], p[(i + 1) % p.size()]);",
+      "    return s;",
+      "}"
+    ],
+    "description": "Computes twice the signed area of any simple polygon with integer vertices. Returns a positive value for counter-clockwise orientation and negative for clockwise. | Complexity: - **Time Complexity:** O(n) - **Space Co..."
+  },
+  "Segment Intersection & Collinearity": {
+    "prefix": [
+      "cp-segment-intersection",
+      "cp-geom-intersect"
+    ],
+    "body": [
+      "inline bool on_segment(Pt a, Pt b, Pt p) {",
+      "    return cross(a, b, p) == 0 &&",
+      "           min(a.x, b.x) <= p.x && p.x <= max(a.x, b.x) &&",
+      "           min(a.y, b.y) <= p.y && p.y <= max(a.y, b.y);",
+      "}",
+      "",
+      "// Segments [a,b] and [c,d] share at least one point (touching counts).",
+      "inline bool segments_intersect(Pt a, Pt b, Pt c, Pt d) {",
+      "    int o1 = sgn(cross(a, b, c)), o2 = sgn(cross(a, b, d));",
+      "    int o3 = sgn(cross(c, d, a)), o4 = sgn(cross(c, d, b));",
+      "    if (o1 != o2 && o3 != o4) return true;",
+      "    return on_segment(a, b, c) || on_segment(a, b, d) ||",
+      "           on_segment(c, d, a) || on_segment(c, d, b);",
+      "}"
+    ],
+    "description": "Determines whether two closed line segments [a, b] and [c, d] intersect (including endpoint touches and collinear overlapping segments). | Complexity: - **Time Complexity:** O(1) - **Space Complexity:** O(1)"
+  },
+  "Point in Polygon (Ray Casting)": {
+    "prefix": [
+      "cp-point-in-polygon",
+      "cp-ray-casting"
+    ],
+    "body": [
+      "inline int point_in_polygon(const vector<Pt> &poly, Pt p) {",
+      "    bool in = false;",
+      "    int n = poly.size();",
+      "    for (int i = 0; i < n; i++) {",
+      "        Pt a = poly[i], b = poly[(i + 1) % n];",
+      "        if (on_segment(a, b, p)) return 1;",
+      "        if ((a.y > p.y) != (b.y > p.y)) {",
+      "            ll c = cross(b - a, p - a);",
+      "            if (b.y > a.y ? c > 0 : c < 0) in = !in;",
+      "        }",
+      "    }",
+      "    return in ? 2 : 0;",
+      "}"
+    ],
+    "description": "Tests whether query point p lies inside, on the boundary, or outside an arbitrary simple polygon in O(n) time by casting a horizontal ray to +∈fty and counting parity of edge crossings. - Returns 0: Strictly outside -..."
+  },
+  "Closest Pair of Points (Sweep-line)": {
+    "prefix": [
+      "cp-closest-pair",
+      "cp-closest-points"
+    ],
+    "body": [
+      "inline ll closest_pair_dist2(vector<Pt> p) {",
+      "    sort(p.begin(), p.end());",
+      "    ll best = LLONG_MAX;",
+      "    set<pair<ll, ll>> s;  // stores (y, x)",
+      "    int left = 0;",
+      "    for (int i = 0; i < (int)p.size(); i++) {",
+      "        ll d = (ll)ceil(sqrt((double)best)) + 1;",
+      "        if (best == LLONG_MAX) d = LLONG_MAX / 4;",
+      "        while (left < i && (best == LLONG_MAX ? false : (p[i].x - p[left].x) >= d)) {",
+      "            s.erase({p[left].y, p[left].x});",
+      "            left++;",
+      "        }",
+      "        auto lo = s.lower_bound({p[i].y - d, LLONG_MIN});",
+      "        for (auto it = lo; it != s.end() && it->first <= p[i].y + d; ++it)",
+      "            best = min(best, dist2(p[i], Pt(it->second, it->first)));",
+      "        s.insert({p[i].y, p[i].x});",
+      "    }",
+      "    return best;",
+      "}"
+    ],
+    "description": "Finds the minimum Euclidean squared distance among all pairs in a set of n points using an x-coordinate sweep-line with a balanced binary search tree (std::set ordered by y). | Complexity: - **Time Complexity:** O(n l..."
+  },
+  "Jarvis March (Gift Wrapping Algorithm)": {
+    "prefix": [
+      "cp-jarvis-march",
+      "cp-gift-wrapping"
+    ],
+    "body": [
+      "vector<Pt> jarvisMarch(vector<Pt> points) {",
+      "    int n = points.size();",
+      "    if (n <= 2) return points;",
+      "",
+      "    vector<Pt> hull;",
+      "    int leftmost = 0;",
+      "    for (int i = 1; i < n; i++) {",
+      "        if (points[i].x < points[leftmost].x ||",
+      "           (points[i].x == points[leftmost].x && points[i].y < points[leftmost].y))",
+      "            leftmost = i;",
+      "    }",
+      "",
+      "    int p = leftmost;",
+      "    do {",
+      "        hull.push_back(points[p]);",
+      "        int q = (p + 1) % n;",
+      "        for (int i = 0; i < n; i++) {",
+      "            if (cross(points[p], points[i], points[q]) > 0) q = i;",
+      "        }",
+      "        p = q;",
+      "    } while (p != leftmost);",
+      "",
+      "    return hull;",
+      "}"
+    ],
+    "description": "Computes the convex hull by starting at the leftmost point and repeatedly finding the next point that makes the widest counter-clockwise turn. Optimal when the number of hull vertices h is small (h \\ll n). | Complexit..."
+  },
+  "Graham Scan Convex Hull": {
+    "prefix": [
+      "cp-graham-scan"
+    ],
+    "body": [
+      "vector<Pt> grahamScan(vector<Pt> pts) {",
+      "    int n = pts.size();",
+      "    if (n <= 2) return pts;",
+      "",
+      "    int minIdx = 0;",
+      "    for (int i = 1; i < n; i++) {",
+      "        if (pts[i].y < pts[minIdx].y || (pts[i].y == pts[minIdx].y && pts[i].x < pts[minIdx].x))",
+      "            minIdx = i;",
+      "    }",
+      "    swap(pts[0], pts[minIdx]);",
+      "    Pt p0 = pts[0];",
+      "",
+      "    sort(pts.begin() + 1, pts.end(), [&](Pt a, Pt b) {",
+      "        ll c = cross(p0, a, b);",
+      "        if (c == 0) return dist2(p0, a) < dist2(p0, b);",
+      "        return c > 0;",
+      "    });",
+      "",
+      "    vector<Pt> st;",
+      "    st.push_back(pts[0]);",
+      "    st.push_back(pts[1]);",
+      "    for (int i = 2; i < n; i++) {",
+      "        while (st.size() >= 2 && cross(st[st.size() - 2], st.back(), pts[i]) <= 0)",
+      "            st.pop_back();",
+      "        st.push_back(pts[i]);",
+      "    }",
+      "    return st;",
+      "}"
+    ],
+    "description": "Finds the lowest point as a pivot, sorts remaining points radially by polar angle with respect to the pivot, and uses a stack to build the convex hull in a single pass. | Complexity: - **Time Complexity:** O(n log n) ..."
+  }
+}

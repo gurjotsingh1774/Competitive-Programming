@@ -1,0 +1,314 @@
+{
+  "Longest Increasing Subsequence (LIS)": {
+    "prefix": [
+      "cp-lis"
+    ],
+    "body": [
+      "// LIS length in O(n log n). strict=false allows equal elements.",
+      "template <class T> int lis_length(const vector<T> &a, bool strict = true) {",
+      "    vector<T> d;",
+      "    for (const T &x : a) {",
+      "        auto it = strict ? lower_bound(d.begin(), d.end(), x) : upper_bound(d.begin(), d.end(), x);",
+      "        if (it == d.end()) d.push_back(x); else *it = x;",
+      "    }",
+      "    return d.size();",
+      "}",
+      "",
+      "// Indices of one LIS (in increasing index order).",
+      "template <class T> vector<int> lis_indices(const vector<T> &a, bool strict = true) {",
+      "    int n = a.size();",
+      "    vector<int> tail, prv(n, -1);",
+      "    for (int i = 0; i < n; i++) {",
+      "        auto cmp = [&](int idx, const T &v) { return strict ? a[idx] < v : !(v < a[idx]); };",
+      "        int lo = 0, hi = tail.size();",
+      "        while (lo < hi) {",
+      "            int mid = (lo + hi) / 2;",
+      "            if (cmp(tail[mid], a[i])) lo = mid + 1; else hi = mid;",
+      "        }",
+      "        if (lo > 0) prv[i] = tail[lo - 1];",
+      "        if (lo == (int)tail.size()) tail.push_back(i); else tail[lo] = i;",
+      "    }",
+      "    vector<int> res;",
+      "    for (int i = tail.empty() ? -1 : tail.back(); i != -1; i = prv[i]) res.push_back(i);",
+      "    reverse(res.begin(), res.end());",
+      "    return res;",
+      "}"
+    ],
+    "description": "Computes the length and reconstructs the actual sequence of the Longest Increasing Subsequence using patience sorting and binary search. - For strictly increasing, uses std::lower_bound. - For non-decreasing, uses std..."
+  },
+  "Longest Common Subsequence (LCS)": {
+    "prefix": [
+      "cp-lcs"
+    ],
+    "body": [
+      "inline string lcs(const string &a, const string &b) {",
+      "    int n = a.size(), m = b.size();",
+      "    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));",
+      "    for (int i = n - 1; i >= 0; i--)",
+      "        for (int j = m - 1; j >= 0; j--)",
+      "            dp[i][j] = a[i] == b[j] ? dp[i + 1][j + 1] + 1 : max(dp[i + 1][j], dp[i][j + 1]);",
+      "    string r;",
+      "    for (int i = 0, j = 0; i < n && j < m;) {",
+      "        if (a[i] == b[j]) r += a[i], i++, j++;",
+      "        else if (dp[i + 1][j] >= dp[i][j + 1]) i++;",
+      "        else j++;",
+      "    }",
+      "    return r;",
+      "}"
+    ],
+    "description": "Finds and reconstructs the longest common subsequence string between two strings a and b using standard 2D dynamic programming. | Complexity: - **Time Complexity:** O(n · m) - **Space Complexity:** O(n · m)"
+  },
+  "Edit Distance (Levenshtein)": {
+    "prefix": [
+      "cp-edit-distance",
+      "cp-levenshtein"
+    ],
+    "body": [
+      "inline int edit_distance(const string &a, const string &b) {",
+      "    int n = a.size(), m = b.size();",
+      "    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));",
+      "    for (int i = 0; i <= n; i++) dp[i][0] = i;",
+      "    for (int j = 0; j <= m; j++) dp[0][j] = j;",
+      "    for (int i = 1; i <= n; i++)",
+      "        for (int j = 1; j <= m; j++)",
+      "            dp[i][j] = min({dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] != b[j - 1])});",
+      "    return dp[n][m];",
+      "}"
+    ],
+    "description": "Computes the minimum number of single-character insertions, deletions, or substitutions required to transform string a into string b. | Complexity: - **Time Complexity:** O(n · m) - **Space Complexity:** O(n · m)"
+  },
+  "Bitset Subset Sums (0-1 Knapsack)": {
+    "prefix": [
+      "cp-bitset-knapsack",
+      "cp-bitset-subset-sum"
+    ],
+    "body": [
+      "template <size_t N> bitset<N> subset_sums(const vector<int> &w) {",
+      "    bitset<N> b;",
+      "    b[0] = 1;",
+      "    for (int x : w) b |= b << x;",
+      "    return b;",
+      "}"
+    ],
+    "description": "Determines all achievable subset sums up to N - 1. Hardware 64-bit parallelization (std::bitset) shifts the entire reachability mask in a single CPU instruction, achieving a 64× speedup over nested boolean loops. | Co..."
+  },
+  "Sum Over Subsets (SOS DP / Yates’s Algorithm)": {
+    "prefix": [
+      "cp-sos-dp"
+    ],
+    "body": [
+      "// f[m] = sum_{s subset of m} f[s]",
+      "template <class T> void subset_zeta(vector<T> &f, int bits) {",
+      "    for (int i = 0; i < bits; i++)",
+      "        for (int m = 0; m < (1 << bits); m++)",
+      "            if (m >> i & 1) f[m] += f[m ^ (1 << i)];",
+      "}",
+      "",
+      "// Inverts subset_zeta",
+      "template <class T> void subset_mobius(vector<T> &f, int bits) {",
+      "    for (int i = 0; i < bits; i++)",
+      "        for (int m = 0; m < (1 << bits); m++)",
+      "            if (m >> i & 1) f[m] -= f[m ^ (1 << i)];",
+      "}",
+      "",
+      "// f[m] = sum_{s superset of m} f[s]",
+      "template <class T> void superset_zeta(vector<T> &f, int bits) {",
+      "    for (int i = 0; i < bits; i++)",
+      "        for (int m = 0; m < (1 << bits); m++)",
+      "            if (!(m >> i & 1)) f[m] += f[m | (1 << i)];",
+      "}"
+    ],
+    "description": "Performs fast multidimensional prefix sums and inversions on boolean hypercubes: - **subset_zeta**: Computes f'[m] = \\sum_{s \\subseteq m} f[s] (sum over all submasks). - **subset_mobius**: Inverts the Zeta transform, ..."
+  },
+  "Digit DP": {
+    "prefix": [
+      "cp-digit-dp"
+    ],
+    "body": [
+      "template <class Step, class Accept> ll digit_dp(const string &N, int K, Step step, Accept accept) {",
+      "    int n = N.size();",
+      "    vector<vector<array<ll, 2>>> memo(n + 1, vector<array<ll, 2>>(K, {-1, -1}));",
+      "    function<ll(int, int, bool, bool)> go = [&](int pos, int st, bool tight, bool started) -> ll {",
+      "        if (pos == n) return accept(st) ? 1 : 0;",
+      "        if (!tight && memo[pos][st][started] >= 0) return memo[pos][st][started];",
+      "        int lim = tight ? N[pos] - '0' : 9;",
+      "        ll res = 0;",
+      "        for (int d = 0; d <= lim; d++) {",
+      "            bool nt = tight && d == lim;",
+      "            if (!started && d == 0) { res += go(pos + 1, st, nt, false); continue; }",
+      "            int ns = step(st, d);",
+      "            if (ns >= 0) res += go(pos + 1, ns, nt, true);",
+      "        }",
+      "        if (!tight) memo[pos][st][started] = res;",
+      "        return res;",
+      "    };",
+      "    return go(0, 0, true, false);",
+      "}"
+    ],
+    "description": "Generic framework to count numbers in range [0, N] whose digits satisfy a state machine: - step(state, digit): Returns the next state, or -1 to reject. - accept(state): Returns true if the terminal state counts. - Aut..."
+  },
+  "Bitmask Traveling Salesperson Problem (TSP)": {
+    "prefix": [
+      "cp-tsp",
+      "cp-tsp-dp"
+    ],
+    "body": [
+      "inline ll tsp_cycle(const vector<vector<ll>> &d) {",
+      "    int n = d.size();",
+      "    if (n == 1) return 0;",
+      "    const ll INFV = (ll)4e18;",
+      "    vector<vector<ll>> dp(1 << n, vector<ll>(n, INFV));",
+      "    dp[1][0] = 0;",
+      "    for (int m = 1; m < (1 << n); m += 2)",
+      "        for (int u = 0; u < n; u++) {",
+      "            if (dp[m][u] >= INFV) continue;",
+      "            for (int v = 0; v < n; v++)",
+      "                if (!(m >> v & 1)) dp[m | 1 << v][v] = min(dp[m | 1 << v][v], dp[m][u] + d[u][v]);",
+      "        }",
+      "    ll best = INFV;",
+      "    for (int u = 1; u < n; u++)",
+      "        if (dp[(1 << n) - 1][u] < INFV) best = min(best, dp[(1 << n) - 1][u] + d[u][0]);",
+      "    return best;",
+      "}"
+    ],
+    "description": "Computes the minimum weight Hamiltonian cycle visiting every node in an n-node graph (n ≤ 20). Uses bitmask dynamic programming where mask bit i=1 indicates node i has been visited. | Complexity: - **Time Complexity:*..."
+  },
+  "Divide and Conquer DP Optimization": {
+    "prefix": [
+      "cp-dnc-dp",
+      "cp-dnc-optimization"
+    ],
+    "body": [
+      "template <class Cost> ll partition_dp(int n, int k, Cost cost) {",
+      "    const ll INFV = (ll)4e18;",
+      "    vector<ll> prev(n + 1, INFV), cur(n + 1, INFV);",
+      "    for (int i = 1; i <= n; i++) prev[i] = cost(0, i);",
+      "    for (int j = 2; j <= k; j++) {",
+      "        fill(cur.begin(), cur.end(), INFV);",
+      "        function<void(int, int, int, int)> rec = [&](int lo, int hi, int optlo, int opthi) {",
+      "            if (lo > hi) return;",
+      "            int mid = (lo + hi) / 2, best = -1;",
+      "            ll bv = INFV;",
+      "            for (int p = optlo; p <= min(mid - 1, opthi); p++) {",
+      "                if (prev[p] >= INFV) continue;",
+      "                ll v = prev[p] + cost(p, mid);",
+      "                if (v < bv) bv = v, best = p;",
+      "            }",
+      "            cur[mid] = bv;",
+      "            if (best < 0) best = optlo;",
+      "            rec(lo, mid - 1, optlo, best);",
+      "            rec(mid + 1, hi, best, opthi);",
+      "        };",
+      "        rec(j, n, j - 1, n - 1);",
+      "        swap(prev, cur);",
+      "    }",
+      "    return prev[n];",
+      "}"
+    ],
+    "description": "Optimizes DP transitions of the form dp[j][i] = \\min_{p < i} { dp[j-1][p] + cost(p, i) }. Applicable when the optimal partition split points are monotonic (satisfying the quadrangle inequality). | Complexity: - **Time..."
+  },
+  "0/1 Bounded Knapsack": {
+    "prefix": [
+      "cp-knapsack-01"
+    ],
+    "body": [
+      "int knapsack01(int W, const vector<int>& weights, const vector<int>& values) {",
+      "    int n = weights.size();",
+      "    vector<int> dp(W + 1, 0);",
+      "    for (int i = 0; i < n; i++) {",
+      "        for (int w = W; w >= weights[i]; w--) {",
+      "            dp[w] = max(dp[w], dp[w - weights[i]] + values[i]);",
+      "        }",
+      "    }",
+      "    return dp[W];",
+      "}"
+    ],
+    "description": "Given n items, each with a weight and a value, determines the maximum total value that fits within a bag of capacity W. Each item can be selected at most once. | Complexity: - **Time Complexity:** O(n · W) - **Space C..."
+  },
+  "Unbounded Knapsack (Coin Change: Combinations vs Permutations)": {
+    "prefix": [
+      "cp-knapsack-unbounded",
+      "cp-coin-change"
+    ],
+    "body": [
+      "// Combinations: Order does NOT matter",
+      "long long countCoinCombinations(int target, const vector<int>& coins) {",
+      "    vector<long long> dp(target + 1, 0);",
+      "    dp[0] = 1;",
+      "    for (int coin : coins) {",
+      "        for (int w = coin; w <= target; w++) {",
+      "            dp[w] += dp[w - coin];",
+      "        }",
+      "    }",
+      "    return dp[target];",
+      "}",
+      "",
+      "// Permutations: Order DOES matter",
+      "long long countCoinPermutations(int target, const vector<int>& coins) {",
+      "    vector<long long> dp(target + 1, 0);",
+      "    dp[0] = 1;",
+      "    for (int w = 1; w <= target; w++) {",
+      "        for (int coin : coins) {",
+      "            if (w >= coin) dp[w] += dp[w - coin];",
+      "        }",
+      "    }",
+      "    return dp[target];",
+      "}"
+    ],
+    "description": "When items can be reused an unlimited number of times to form a target sum W: - **Combinations (outer loop over items):** Order does not matter (e.g., {1, 2} is the same as {2, 1}). - **Permutations (outer loop over t..."
+  },
+  "Matrix Chain Multiplication (MCM)": {
+    "prefix": [
+      "cp-mcm",
+      "cp-mcm-dp"
+    ],
+    "body": [
+      "int matrixChainOrder(const vector<int>& p) {",
+      "    int n = p.size() - 1; // n matrices",
+      "    vector<vector<int>> dp(n, vector<int>(n, 0));",
+      "",
+      "    for (int len = 2; len <= n; len++) {",
+      "        for (int i = 0; i <= n - len; i++) {",
+      "            int j = i + len - 1;",
+      "            dp[i][j] = INT_MAX;",
+      "            for (int k = i; k < j; k++) {",
+      "                int cost = dp[i][k] + dp[k + 1][j] + p[i] * p[k + 1] * p[j + 1];",
+      "                dp[i][j] = min(dp[i][j], cost);",
+      "            }",
+      "        }",
+      "    }",
+      "    return dp[0][n - 1];",
+      "}"
+    ],
+    "description": "Finds the most efficient parenthesization order to multiply a sequence of n matrices with dimensions d_0 × d_1, d_1 × d_2, ..., d_{n-1} × d_n, minimizing total scalar multiplications. | Complexity: - **Time Complexity..."
+  },
+  "Longest Common Substring": {
+    "prefix": [
+      "cp-longest-common-substring"
+    ],
+    "body": [
+      "pair<int, string> longestCommonSubstring(const string& X, const string& Y) {",
+      "    int m = X.size(), n = Y.size();",
+      "    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));",
+      "    int maxLen = 0, endIdx = 0;",
+      "",
+      "    for (int i = 1; i <= m; i++) {",
+      "        for (int j = 1; j <= n; j++) {",
+      "            if (X[i - 1] == Y[j - 1]) {",
+      "                dp[i][j] = dp[i - 1][j - 1] + 1;",
+      "                if (dp[i][j] > maxLen) {",
+      "                    maxLen = dp[i][j];",
+      "                    endIdx = i;",
+      "                }",
+      "            } else {",
+      "                dp[i][j] = 0;",
+      "            }",
+      "        }",
+      "    }",
+      "    string substr = X.substr(endIdx - maxLen, maxLen);",
+      "    return {maxLen, substr};",
+      "}"
+    ],
+    "description": "Finds the maximum length of a **contiguous** common substring between two strings X and Y. Resets the matching length to 0 whenever X[i-1] \\ne Y[j-1]. | Complexity: - **Time Complexity:** O(|X| · |Y|) - **Space Comple..."
+  }
+}

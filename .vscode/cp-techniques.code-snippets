@@ -1,0 +1,272 @@
+{
+  "2D Prefix Sums": {
+    "prefix": [
+      "cp-prefix-sums-2d",
+      "cp-pref2d"
+    ],
+    "body": [
+      "// 2D prefix sums. query(r1, c1, r2, c2) inclusive.",
+      "template <class T = long long> struct PrefixSum2D {",
+      "    vector<vector<T>> p;",
+      "    PrefixSum2D(const vector<vector<T>> &a = {}) {",
+      "        int n = a.size(), m = n ? a[0].size() : 0;",
+      "        p.assign(n + 1, vector<T>(m + 1, T()));",
+      "        for (int i = 0; i < n; i++)",
+      "            for (int j = 0; j < m; j++)",
+      "                p[i + 1][j + 1] = a[i][j] + p[i][j + 1] + p[i + 1][j] - p[i][j];",
+      "    }",
+      "    T query(int r1, int c1, int r2, int c2) const {",
+      "        return p[r2 + 1][c2 + 1] - p[r1][c2 + 1] - p[r2 + 1][c1] + p[r1][c1];",
+      "    }",
+      "};"
+    ],
+    "description": "Precomputes a 2D cumulative sum table in O(n · m) time to answer sum queries over any rectangular subgrid [r_1, c_1] to [r_2, c_2] (inclusive) in O(1) time via inclusion-exclusion. | Complexity: - **Build Time:** O(n ..."
+  },
+  "Sliding Window Extremes": {
+    "prefix": [
+      "cp-sliding-window",
+      "cp-sliding-minmax"
+    ],
+    "body": [
+      "// sliding_window: result[i] = best of a[i..i+k-1].",
+      "// For window minimum: cmp = less<T>()",
+      "// For window maximum: cmp = greater<T>()",
+      "template <class T, class Cmp> vector<T> sliding_window(const vector<T> &a, int k, Cmp cmp) {",
+      "    deque<int> dq;",
+      "    vector<T> res;",
+      "    for (int i = 0; i < (int)a.size(); i++) {",
+      "        while (!dq.empty() && !cmp(a[dq.back()], a[i])) dq.pop_back();",
+      "        dq.push_back(i);",
+      "        if (dq.front() <= i - k) dq.pop_front();",
+      "        if (i >= k - 1) res.push_back(a[dq.front()]);",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Computes the minimum or maximum in every contiguous window of size k across an array. Uses a double-ended queue (std::deque) storing indices in monotonic value order, discarding elements that fall outside the window o..."
+  },
+  "Maximum Subarray Sum (Kadane’s Algorithm)": {
+    "prefix": [
+      "cp-kadane",
+      "cp-max-subarray"
+    ],
+    "body": [
+      "// Returns tuple of {max_sum, left_index, right_index} (inclusive)",
+      "inline tuple<ll, int, int> max_subarray(const vector<ll> &a) {",
+      "    ll best = a[0], cur = a[0];",
+      "    int bl = 0, br = 0, cl = 0;",
+      "    for (int i = 1; i < (int)a.size(); i++) {",
+      "        if (cur < 0) cur = a[i], cl = i;",
+      "        else cur += a[i];",
+      "        if (cur > best) best = cur, bl = cl, br = i;",
+      "    }",
+      "    return {best, bl, br};",
+      "}"
+    ],
+    "description": "Finds the maximum possible sum of a non-empty contiguous subarray along with the start and end indices [l, r]. Handles arrays where all numbers are negative by tracking the single best negative value. | Complexity: - ..."
+  },
+  "Meet in the Middle (Subset Sums)": {
+    "prefix": [
+      "cp-meet-in-the-middle",
+      "cp-mitm"
+    ],
+    "body": [
+      "// Number of subsets (including empty) of a with sum <= X.",
+      "inline ll count_subsets_leq(const vector<ll> &a, ll X) {",
+      "    int n = a.size(), h = n / 2;",
+      "    auto gen = [&](int l, int r) {",
+      "        vector<ll> s = {0};",
+      "        for (int i = l; i < r; i++) {",
+      "            int sz0 = s.size();",
+      "            for (int j = 0; j < sz0; j++) s.push_back(s[j] + a[i]);",
+      "        }",
+      "        sort(s.begin(), s.end());",
+      "        return s;",
+      "    };",
+      "    auto L = gen(0, h), R = gen(h, n);",
+      "    ll res = 0;",
+      "    for (ll x : L) res += upper_bound(R.begin(), R.end(), X - x) - R.begin();",
+      "    return res;",
+      "}"
+    ],
+    "description": "Solves the subset sum counting problem for sizes up to n ≈ 40. Naive O(2^n) brute force is too slow (2^{40} ≈ 10^{12}). By splitting the array into two halves of size n/2, generating 2^{n/2} subset sums for each half,..."
+  },
+  "Coordinate Compression": {
+    "prefix": [
+      "cp-coordinate-compression",
+      "cp-compress"
+    ],
+    "body": [
+      "template <class T> struct Compressor {",
+      "    vector<T> v;",
+      "    Compressor(vector<T> vals = {}) : v(move(vals)) {",
+      "        sort(v.begin(), v.end());",
+      "        v.erase(unique(v.begin(), v.end()), v.end());",
+      "    }",
+      "    int id(const T &x) const { return lower_bound(v.begin(), v.end(), x) - v.begin(); }",
+      "    int size() const { return v.size(); }",
+      "    const T &value(int i) const { return v[i]; }",
+      "};"
+    ],
+    "description": "Maps arbitrary values (potentially large or negative integers up to ± 10^{18}) into contiguous 0-indexed ranks [0, distinct-1] while preserving their relative order. Essential for Fenwick trees, Segment trees, and mat..."
+  },
+  "Bitwise Arithmetic Utilities": {
+    "prefix": [
+      "cp-bit-tricks",
+      "cp-bit-ops"
+    ],
+    "body": [
+      "namespace BitTricks {",
+      "    // Check whether a number is even or odd",
+      "    bool isEven(int x) { return (x & 1) == 0; }",
+      "",
+      "    // Clear the lowest set bit of x (Brian Kernighan's trick)",
+      "    int clearLowestSetBit(int x) { return x & (x - 1); }",
+      "",
+      "    // Extract lowest set bit as a power of 2 (isolates LSB)",
+      "    int extractLowestSetBit(int x) { return x & -x; }",
+      "",
+      "    // Clear all bits from LSB to i-th bit",
+      "    int clearLSBToI(int x, int i) { return x & ~((1 << (i + 1)) - 1); }",
+      "",
+      "    // Clear all bits from MSB to i-th bit",
+      "    int clearMSBToI(int x, int i) { return x & ((1 << i) - 1); }",
+      "",
+      "    // Count set bits (population count)",
+      "    int countSetBits(int x) { return __builtin_popcount(x); }",
+      "    int countSetBitsLL(long long x) { return __builtin_popcountll(x); }",
+      "",
+      "    // Check if x is a power of 2",
+      "    bool isPowerOf2(int x) { return x > 0 && !(x & (x - 1)); }",
+      "",
+      "    // Turn off / on / toggle k-th bit (0-indexed)",
+      "    int turnOffKthBit(int n, int k) { return n & ~(1 << k); }",
+      "    int turnOnKthBit(int n, int k) { return n | (1 << k); }",
+      "    int toggleKthBit(int n, int k) { return n ^ (1 << k); }",
+      "    bool isKthBitSet(int n, int k) { return (n >> k) & 1; }",
+      "",
+      "    // Count of numbers x such that n + x == (n ^ x)",
+      "    // Equals 2^(number of unset bits in n)",
+      "    int countValidX(int n) {",
+      "        int zeroBits = 0;",
+      "        while (n) {",
+      "            if ((n & 1) == 0) zeroBits++;",
+      "            n >>= 1;",
+      "        }",
+      "        return 1 << zeroBits;",
+      "    }",
+      "}"
+    ],
+    "description": "Bitwise operations execute directly on CPU registers in a single clock cycle, offering high efficiency for parity checks, bit extraction, bit clearing, and counting set bits. | Complexity: - **Time Complexity:** O(1) ..."
+  },
+  "All Submask Iteration": {
+    "prefix": [
+      "cp-submask-iteration",
+      "cp-submasks"
+    ],
+    "body": [
+      "// Iterate through all submasks of mask in decreasing order",
+      "void iterateSubmasksDecreasing(int mask) {",
+      "    for (int s = mask; s > 0; s = (s - 1) & mask) {",
+      "        // Process submask s...",
+      "    }",
+      "    // Process submask 0...",
+      "}",
+      "",
+      "// Iterate through all submasks in increasing order",
+      "void iterateSubmasksIncreasing(int mask) {",
+      "    for (int s = 0; s <= mask; s = (s - mask) & mask) {",
+      "        // Process submask s...",
+      "        if (s == mask) break;",
+      "    }",
+      "}"
+    ],
+    "description": "Iterating over all submasks of a bitmask mask: - Decreasing order: for (int s = mask; s > 0; s = (s - 1) & mask) traverses all non-empty submasks in strictly decreasing order. Adding 0 completes all 2^{popcount(mask)}..."
+  },
+  "Subarray Count Technique (Prefix Frequency Hashing)": {
+    "prefix": [
+      "cp-subarray-count",
+      "cp-prefix-freq-hash"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<unordered_map>",
+      "",
+      "long long countSubarraysWithSumK(const std::vector<int>& arr, long long k) {",
+      "    std::unordered_map<long long, int, custom_hash> prefix_freq;",
+      "    prefix_freq[0] = 1; // Base case: empty prefix has sum 0",
+      "",
+      "    long long current_sum = 0;",
+      "    long long total_subarrays = 0;",
+      "",
+      "    for (int num : arr) {",
+      "        current_sum += num;",
+      "        long long target = current_sum - k;",
+      "",
+      "        auto it = prefix_freq.find(target);",
+      "        if (it != prefix_freq.end()) {",
+      "            total_subarrays += it->second;",
+      "        }",
+      "",
+      "        prefix_freq[current_sum]++;",
+      "    }",
+      "",
+      "    return total_subarrays;",
+      "}",
+      "",
+      "long long countSubarraysWithXorK(const std::vector<int>& arr, int k) {",
+      "    std::unordered_map<int, int, custom_hash> prefix_freq;",
+      "    prefix_freq[0] = 1;",
+      "",
+      "    int current_xor = 0;",
+      "    long long total_subarrays = 0;",
+      "",
+      "    for (int num : arr) {",
+      "        current_xor ^= num;",
+      "        int target = current_xor ^ k;",
+      "",
+      "        auto it = prefix_freq.find(target);",
+      "        if (it != prefix_freq.end()) {",
+      "            total_subarrays += it->second;",
+      "        }",
+      "",
+      "        prefix_freq[current_xor]++;",
+      "    }",
+      "",
+      "    return total_subarrays;",
+      "}"
+    ],
+    "description": "Counts the total number of contiguous subarrays satisfying a cumulative property (e.g., sum equals k , or XOR equals k ) in linear time. By maintaining the running prefix sum S_i = \\sum_{j=0}^i A_j , any subarray A[j...."
+  },
+  "Mo’s Algorithm": {
+    "prefix": [
+      "cp-mo",
+      "cp-mo-algo"
+    ],
+    "body": [
+      "// Mo's algorithm. Offline range queries [l, r] (inclusive), O((n + q) sqrt n) pointer moves.",
+      "struct MoQuery { int l, r, id; };",
+      "",
+      "template <class Add, class Rem, class Ans>",
+      "void mo_algorithm(int n, vector<MoQuery> qs, Add add, Rem rem, Ans ans) {",
+      "    int q = (int)qs.size();",
+      "    if (!q) return;",
+      "    int block = max(1, (int)(n / sqrt((double)q) + 1));",
+      "    sort(qs.begin(), qs.end(), [&](const MoQuery &a, const MoQuery &b) {",
+      "        int ba = a.l / block, bb = b.l / block;",
+      "        if (ba != bb) return ba < bb;",
+      "        return (ba & 1) ? a.r > b.r : a.r < b.r;",
+      "    });",
+      "    int cl = 0, cr = -1;",
+      "    for (auto &x : qs) {",
+      "        while (cl > x.l) add(--cl);",
+      "        while (cr < x.r) add(++cr);",
+      "        while (cl < x.l) rem(cl++);",
+      "        while (cr > x.r) rem(cr--);",
+      "        ans(x.id);",
+      "    }",
+      "}"
+    ],
+    "description": "Mo’s Algorithm - Competitive programming template"
+  }
+}

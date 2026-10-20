@@ -1,0 +1,131 @@
+{
+  "NQueens Problem": {
+    "prefix": [
+      "cp-nqueens"
+    ],
+    "body": [
+      "bool solveNQueens(int col, int n, vector<int>& queens, vector<bool>& cols,",
+      "                  vector<bool>& diag1, vector<bool>& diag2) {",
+      "    if (col == n) return true;",
+      "    for (int row = 0; row < n; row++) {",
+      "        if (!cols[row] && !diag1[row + col] && !diag2[row - col + n - 1]) {",
+      "            queens[col] = row;",
+      "            cols[row] = diag1[row + col] = diag2[row - col + n - 1] = true;",
+      "",
+      "            if (solveNQueens(col + 1, n, queens, cols, diag1, diag2)) return true;",
+      "",
+      "            cols[row] = diag1[row + col] = diag2[row - col + n - 1] = false;",
+      "        }",
+      "    }",
+      "    return false;",
+      "}",
+      "",
+      "vector<int> nQueens(int n) {",
+      "    vector<int> queens(n);",
+      "    vector<bool> cols(n, false), diag1(2 * n, false), diag2(2 * n, false);",
+      "    if (solveNQueens(0, n, queens, cols, diag1, diag2)) return queens;",
+      "    return {};",
+      "}"
+    ],
+    "description": "Places N non-attacking queens on an N × N chessboard such that no two queens share the same row, column, or diagonal. Prunes invalid search branches in O(1) by tracking occupied columns and both diagonal sets. | Compl..."
+  },
+  "Knight’s Tour": {
+    "prefix": [
+      "cp-knights-tour"
+    ],
+    "body": [
+      "const int kdx[] = {2, 1, -1, -2, -2, -1, 1, 2};",
+      "const int kdy[] = {1, 2, 2, 1, -1, -2, -2, -1};",
+      "",
+      "bool solveKnightTour(int x, int y, int moveCount, int n, vector<vector<int>>& board) {",
+      "    if (moveCount == n * n) return true;",
+      "    for (int k = 0; k < 8; k++) {",
+      "        int nx = x + kdx[k], ny = y + kdy[k];",
+      "        if (nx >= 0 && nx < n && ny >= 0 && ny < n && board[nx][ny] == -1) {",
+      "            board[nx][ny] = moveCount;",
+      "            if (solveKnightTour(nx, ny, moveCount + 1, n, board)) return true;",
+      "            board[nx][ny] = -1;",
+      "        }",
+      "    }",
+      "    return false;",
+      "}",
+      "",
+      "vector<vector<int>> knightTour(int n) {",
+      "    vector<vector<int>> board(n, vector<int>(n, -1));",
+      "    board[0][0] = 0;",
+      "    if (solveKnightTour(0, 0, 1, n, board)) return board;",
+      "    return {};",
+      "}"
+    ],
+    "description": "Finds a sequence of knight moves on an N × N chessboard such that the knight visits every square exactly once. Explores 8 valid L-shaped knight moves from the current position. | Complexity: - **Time Complexity:** O(8..."
+  },
+  "KKnights on Chessboard": {
+    "prefix": [
+      "cp-kknights"
+    ],
+    "body": [
+      "bool canPlaceKnight(const vector<vector<bool>>& board, int r, int c, int m, int n) {",
+      "    const int dr[] = {-2, -2, -1, -1};",
+      "    const int dc[] = {-1, 1, -2, 2};",
+      "    for (int i = 0; i < 4; i++) {",
+      "        int pr = r + dr[i], pc = c + dc[i];",
+      "        if (pr >= 0 && pr < m && pc >= 0 && pc < n && board[pr][pc]) return false;",
+      "    }",
+      "    return true;",
+      "}",
+      "",
+      "int countKKnights(int m, int n, int k, int idx = 0, vector<vector<bool>> board = {}) {",
+      "    if (board.empty()) board.assign(m, vector<bool>(n, false));",
+      "    if (k == 0) return 1;",
+      "    if (idx >= m * n) return 0;",
+      "",
+      "    int total = 0;",
+      "    for (int i = idx; i < m * n; i++) {",
+      "        int r = i / n, c = i % n;",
+      "        if (canPlaceKnight(board, r, c, m, n)) {",
+      "            board[r][c] = true;",
+      "            total += countKKnights(m, n, k - 1, i + 1, board);",
+      "            board[r][c] = false;",
+      "        }",
+      "    }",
+      "    return total;",
+      "}"
+    ],
+    "description": "Counts or finds all valid arrangements to place K knights on an M × N board such that no two knights can attack one another. | Complexity: - **Time Complexity:** O≤ft(\\binom{M · N}{K}\\right) upper bound - **Space Comp..."
+  },
+  "Graph mColoring Problem": {
+    "prefix": [
+      "cp-graph-coloring",
+      "cp-mcoloring"
+    ],
+    "body": [
+      "bool isColorValid(int u, int c, const vector<vector<int>>& g, const vector<int>& color) {",
+      "    for (int v : g[u]) {",
+      "        if (color[v] == c) return false;",
+      "    }",
+      "    return true;",
+      "}",
+      "",
+      "bool solveGraphColoring(int u, int m, const vector<vector<int>>& g, vector<int>& color) {",
+      "    int n = g.size();",
+      "    if (u == n) return true;",
+      "    for (int c = 1; c <= m; c++) {",
+      "        if (isColorValid(u, c, g, color)) {",
+      "            color[u] = c;",
+      "            if (solveGraphColoring(u + 1, m, g, color)) return true;",
+      "            color[u] = 0;",
+      "        }",
+      "    }",
+      "    return false;",
+      "}",
+      "",
+      "vector<int> graphColoring(const vector<vector<int>>& g, int m) {",
+      "    int n = g.size();",
+      "    vector<int> color(n, 0);",
+      "    if (solveGraphColoring(0, m, g, color)) return color;",
+      "    return {};",
+      "}"
+    ],
+    "description": "Determines if an undirected graph can be assigned colors from {1 ... m} such that no two adjacent vertices share the same color. | Complexity: - **Time Complexity:** O(m^V) worst-case - **Space Complexity:** O(V)"
+  }
+}
