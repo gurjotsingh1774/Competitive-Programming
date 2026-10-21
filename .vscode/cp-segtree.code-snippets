@@ -637,14 +637,14 @@
       "",
       "    LazyPersistentSegTree(int n_ = 1) : n(n_) {",
       "        pref_pow.assign(n + 1, 0);",
-      "        for (int i = 1; i <= n; i++) pref_pow[i] = pref_pow[i - 1] + BASE.power(i);",
+      "        for (int i = 1; i <= n; i++) pref_pow[i] = pref_pow[i - 1] + BASE.power(i - 1);",
       "        t.reserve(300 * n);",
       "        t.push_back(Node());",
-      "        roots.push_back(build(1, n));",
+      "        roots.push_back(build(0, n - 1));",
       "    }",
       "",
       "    mint get_segment_full_hash(int lo, int hi) const {",
-      "        return pref_pow[hi] - pref_pow[lo - 1];",
+      "        return pref_pow[hi + 1] - pref_pow[lo];",
       "    }",
       "",
       "    int clone(int u) {",
@@ -711,7 +711,11 @@
       "    }",
       "",
       "    void update_range(int l, int r) {",
-      "        roots.push_back(invert(roots.back(), 1, n, l, r));",
+      "        roots.push_back(invert(roots.back(), 0, n - 1, l, r));",
+      "    }",
+      "",
+      "    int compare_versions(int u, int v) {",
+      "        return compare(roots[u], roots[v], 0, n - 1);",
       "    }",
       "",
       "    void print(int root_idx, int lo, int hi) {",
@@ -724,9 +728,13 @@
       "        print(t[cur].l, lo, mid);",
       "        print(t[cur].r, mid + 1, hi);",
       "    }",
+      "",
+      "    void print_version(int root_idx) {",
+      "        print(roots[root_idx], 0, n - 1);",
+      "    }",
       "};"
     ],
-    "description": "Lazy Persistent Segment Tree with string hashing for range flips and lexicographical comparison."
+    "description": "Lazy Persistent Segment Tree with string hashing for range flips and lexicographical comparison (0-indexed)."
   },
   "Lazy PST (Flip): Initialize": {
     "prefix": [
@@ -734,9 +742,9 @@
       "cp-lazy-pst-init"
     ],
     "body": [
-      "LazyPersistentSegTree ${1:pst}(${2:n});"
+      "LazyPersistentSegTree ${1:pst}(${2:n});  // 0-indexed [0..n-1] (requires mint)"
     ],
-    "description": "Instantiate a LazyPersistentSegTree of length n (requires mint)."
+    "description": "Instantiate a 0-indexed LazyPersistentSegTree of length n (requires mint)."
   },
   "Lazy PST (Flip): Range flip update": {
     "prefix": [
@@ -744,9 +752,9 @@
       "cp-lazy-pst-flip"
     ],
     "body": [
-      "${1:pst}.update_range(${2:l}, ${3:r});  // Invert range [l, r] (1-based) on latest version"
+      "${1:pst}.update_range(${2:l}, ${3:r});  // Invert range [l, r] (0-based inclusive) on latest version"
     ],
-    "description": "Invert range [l, r] on latest version of LazyPersistentSegTree and append new root."
+    "description": "Invert range [l, r] on latest version of LazyPersistentSegTree and append new root (0-based inclusive)."
   },
   "Lazy PST (Flip): Compare versions": {
     "prefix": [
@@ -754,7 +762,7 @@
       "cp-lazy-pst-cmp"
     ],
     "body": [
-      "int ${1:cmp} = ${2:pst}.compare(${2}.roots[${3:u}], ${2}.roots[${4:v}], 1, ${2}.n);  // 0: equal, 1: u > v, 2: u < v"
+      "int ${1:cmp} = ${2:pst}.compare_versions(${3:u}, ${4:v});  // 0: equal, 1: u > v, 2: u < v"
     ],
     "description": "Lexicographically compare two versions of LazyPersistentSegTree in O(log n)."
   },
@@ -763,7 +771,7 @@
       "cp-lazy-pst-flip-print"
     ],
     "body": [
-      "${1:pst}.print(${1}.roots[${2:ver}], 1, ${1}.n);",
+      "${1:pst}.print_version(${2:ver});",
       "cout << \"\\n\";"
     ],
     "description": "Print full bit sequence of a root version from LazyPersistentSegTree."
@@ -789,14 +797,14 @@
       "    PersistentLazySegTree(int n_ = 1) : n(n_) {",
       "        t.reserve(60 * n + 1000);",
       "        t.push_back(Node());",
-      "        vector<ll> zeros(n + 1, 0);",
-      "        roots.push_back(build(1, n, zeros));",
+      "        vector<ll> zeros(n, 0);",
+      "        roots.push_back(build(0, n - 1, zeros));",
       "    }",
       "",
       "    PersistentLazySegTree(int n_, const vector<ll>& a) : n(n_) {",
       "        t.reserve(60 * n + 1000);",
       "        t.push_back(Node());",
-      "        roots.push_back(build(1, n, a));",
+      "        roots.push_back(build(0, n - 1, a));",
       "    }",
       "",
       "    int clone(int u) {",
@@ -869,11 +877,11 @@
       "    }",
       "",
       "    void modify(int l, int r, ll d) {",
-      "        roots.push_back(update_range(roots.back(), 1, n, l, r, d));",
+      "        roots.push_back(update_range(roots.back(), 0, n - 1, l, r, d));",
       "    }",
       "",
       "    ll query_version(int t_version, int l, int r) const {",
-      "        return query(roots[t_version], 1, n, l, r);",
+      "        return query(roots[t_version], 0, n - 1, l, r);",
       "    }",
       "",
       "    void rollback(int t_version) {",
@@ -881,7 +889,7 @@
       "    }",
       "};"
     ],
-    "description": "Persistent Lazy Segment Tree supporting Range Add and Range Sum queries across versions with rollbacks (O(log n) per operation)."
+    "description": "Persistent Lazy Segment Tree supporting Range Add and Range Sum queries across versions with rollbacks (0-indexed, O(log n) per operation)."
   },
   "Lazy PST (Sum): Initialize": {
     "prefix": [
@@ -889,9 +897,9 @@
       "cp-pst-lazy-init"
     ],
     "body": [
-      "PersistentLazySegTree ${1:tree}(${2:n}, ${3:a});  // 1-indexed: a has size n+1 (or tree(n) for 0s)"
+      "PersistentLazySegTree ${1:tree}(${2:n}, ${3:a});  // 0-indexed: a has size n (or tree(n) for all 0s)"
     ],
-    "description": "Instantiate a PersistentLazySegTree of length n with initial array a (1-indexed)."
+    "description": "Instantiate a 0-indexed PersistentLazySegTree of length n with initial array a."
   },
   "Lazy PST (Sum): Range add update": {
     "prefix": [
@@ -900,9 +908,9 @@
       "cp-lazy-pst-sum-add"
     ],
     "body": [
-      "${1:tree}.modify(${2:l}, ${3:r}, ${4:d});  // Add d to range [l, r] on latest version and push new root"
+      "${1:tree}.modify(${2:l}, ${3:r}, ${4:d});  // Add d to range [l, r] (0-based inclusive) on latest version"
     ],
-    "description": "Add d to range [l, r] on latest version of PersistentLazySegTree and push new root."
+    "description": "Add d to range [l, r] (0-based inclusive) on latest version of PersistentLazySegTree and push new root."
   },
   "Lazy PST (Sum): Query version range sum": {
     "prefix": [
@@ -910,9 +918,9 @@
       "cp-pst-lazy-query"
     ],
     "body": [
-      "${1:tree}.query_version(${2:ver}, ${3:l}, ${4:r});  // Range sum of [l, r] at version ver"
+      "${1:tree}.query_version(${2:ver}, ${3:l}, ${4:r});  // Range sum of a[l..r] (0-based inclusive) at version ver"
     ],
-    "description": "Query the range sum of [l, r] at historical version ver without node allocation."
+    "description": "Query the range sum of a[l..r] (0-based inclusive) at historical version ver without node allocation."
   },
   "Lazy PST (Sum): Rollback to version": {
     "prefix": [
