@@ -725,5 +725,44 @@
       "};"
     ],
     "description": "Lazy Persistent Segment Tree with string hashing for range flips and lexicographical comparison"
+  },
+  "Lazy PST: Initialize": {
+    "prefix": [
+      "cp-lazy-pst-init"
+    ],
+    "body": [
+      "LazyPersistentSegTree ${1:pst}(${2:n});"
+    ],
+    "description": "Instantiate a LazyPersistentSegTree of length n (requires mint)."
+  },
+  "Lazy PST: Range flip update": {
+    "prefix": [
+      "cp-lazy-pst-update",
+      "cp-lazy-pst-flip"
+    ],
+    "body": [
+      "${1:pst}.update_range(${2:l}, ${3:r});  // Invert range [l, r] (1-based) on latest version"
+    ],
+    "description": "Invert range [l, r] on latest version of LazyPersistentSegTree and append new root."
+  },
+  "Lazy PST: Compare versions": {
+    "prefix": [
+      "cp-lazy-pst-compare",
+      "cp-lazy-pst-cmp"
+    ],
+    "body": [
+      "int ${1:cmp} = ${2:pst}.compare(${2}.roots[${3:u}], ${2}.roots[${4:v}], 1, ${2}.n);  // 0: equal, 1: u > v, 2: u < v"
+    ],
+    "description": "Lexicographically compare two versions of LazyPersistentSegTree in O(log n)."
+  },
+  "Lazy PST: Print version": {
+    "prefix": [
+      "cp-lazy-pst-print"
+    ],
+    "body": [
+      "${1:pst}.print(${1}.roots[${2:ver}], 1, ${1}.n);",
+      "cout << \"\\n\";"
+    ],
+    "description": "Print full bit sequence of a root version from LazyPersistentSegTree."
   }
 }
