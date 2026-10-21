@@ -1076,5 +1076,207 @@
       "}"
     ],
     "description": "Standalone helper functions for MergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range)."
+  },
+  "Point Update Merge Sort Tree": {
+    "prefix": [
+      "cp-point-update-mst",
+      "cp-pmst"
+    ],
+    "body": [
+      "#include <ext/pb_ds/assoc_container.hpp>",
+      "#include <ext/pb_ds/tree_policy.hpp>",
+      "",
+      "// Point-Update Merge Sort Tree via PBDS ordered_set of pair<T, int> for unique duplicate handling.",
+      "// Supports point update in O(log^2 n), range order count queries in O(log^2 n), and range k-th query in O(log^3 n).",
+      "// 0-indexed [l, r] inclusive.",
+      "template <class T = long long>",
+      "struct PointUpdateMergeSortTree {",
+      "    using NodeKey = pair<T, int>;",
+      "    using OrderedSet = __gnu_pbds::tree<NodeKey, __gnu_pbds::null_type, less<NodeKey>, __gnu_pbds::rb_tree_tag, __gnu_pbds::tree_order_statistics_node_update>;",
+      "",
+      "    int n;",
+      "    vector<T> a;",
+      "    vector<OrderedSet> t;",
+      "",
+      "    PointUpdateMergeSortTree(int n_ = 0) : n(n_), a(n_), t(4 * n_) {}",
+      "    PointUpdateMergeSortTree(const vector<T> &init_a) : n((int)init_a.size()), a(init_a), t(4 * n) {",
+      "        if (n > 0) build(1, 0, n - 1);",
+      "    }",
+      "",
+      "    void build(int node, int start, int end) {",
+      "        for (int i = start; i <= end; i++) {",
+      "            t[node].insert({a[i], i});",
+      "        }",
+      "        if (start == end) return;",
+      "        int mid = start + (end - start) / 2;",
+      "        build(2 * node, start, mid);",
+      "        build(2 * node + 1, mid + 1, end);",
+      "    }",
+      "",
+      "    // Point update: a[idx] = val in O(log^2 n)",
+      "    void point_update(int idx, T val) {",
+      "        if (idx < 0 || idx >= n) return;",
+      "        T old_val = a[idx];",
+      "        a[idx] = val;",
+      "        update_internal(1, 0, n - 1, idx, old_val, val);",
+      "    }",
+      "",
+      "    // Generic query over range [l, r] (0-indexed inclusive). Sums pred(t[node]) across all canonical segments.",
+      "    template <class F>",
+      "    int query(int l, int r, F pred) const {",
+      "        if (l > r || l < 0 || r >= n) return 0;",
+      "        return query_internal(1, 0, n - 1, l, r, pred);",
+      "    }",
+      "",
+      "private:",
+      "    void update_internal(int node, int start, int end, int idx, const T &old_val, const T &new_val) {",
+      "        t[node].erase({old_val, idx});",
+      "        t[node].insert({new_val, idx});",
+      "        if (start == end) return;",
+      "        int mid = start + (end - start) / 2;",
+      "        if (idx <= mid) update_internal(2 * node, start, mid, idx, old_val, new_val);",
+      "        else update_internal(2 * node + 1, mid + 1, end, idx, old_val, new_val);",
+      "    }",
+      "",
+      "    template <class F>",
+      "    int query_internal(int node, int start, int end, int l, int r, F pred) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) return pred(t[node]);",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_internal(2 * node, start, mid, l, r, pred) +",
+      "               query_internal(2 * node + 1, mid + 1, end, l, r, pred);",
+      "    }",
+      "};"
+    ],
+    "description": "Point-Update Merge Sort Tree via PBDS ordered_set. O(log^2 n) update & order count, O(log^3 n) range kth element."
+  },
+  "PointUpdateMergeSortTree: Initialize": {
+    "prefix": [
+      "cp-pmst-init"
+    ],
+    "body": [
+      "PointUpdateMergeSortTree<${1:long long}> ${2:mst}(${3:a});  // 0-indexed: a is vector<${1}>"
+    ],
+    "description": "Instantiate a PointUpdateMergeSortTree over vector a (0-indexed)."
+  },
+  "PointUpdateMergeSortTree: Point Update": {
+    "prefix": [
+      "cp-pmst-update"
+    ],
+    "body": [
+      "${1:mst}.point_update(${2:idx}, ${3:new_val});"
+    ],
+    "description": "Point update a[idx] = new_val in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: Count <= x": {
+    "prefix": [
+      "cp-pmst-leq"
+    ],
+    "body": [
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:s}) { return (int)${4:s}.order_of_key({${5:x}, numeric_limits<int>::max()}); })"
+    ],
+    "description": "Count elements <= x in range [l, r] in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: Count < x": {
+    "prefix": [
+      "cp-pmst-lt"
+    ],
+    "body": [
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:s}) { return (int)${4:s}.order_of_key({${5:x}, numeric_limits<int>::min()}); })"
+    ],
+    "description": "Count elements < x in range [l, r] in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: Count >= x": {
+    "prefix": [
+      "cp-pmst-geq"
+    ],
+    "body": [
+      "(${3:r} - ${2:l} + 1) - ${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:s}) { return (int)${4:s}.order_of_key({${5:x}, numeric_limits<int>::min()}); })"
+    ],
+    "description": "Count elements >= x in range [l, r] in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: Count > x": {
+    "prefix": [
+      "cp-pmst-gt"
+    ],
+    "body": [
+      "(${3:r} - ${2:l} + 1) - ${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:s}) { return (int)${4:s}.order_of_key({${5:x}, numeric_limits<int>::max()}); })"
+    ],
+    "description": "Count elements > x in range [l, r] in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: Count in [x, y]": {
+    "prefix": [
+      "cp-pmst-range"
+    ],
+    "body": [
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:s}) { return (int)${4:s}.order_of_key({${6:y}, numeric_limits<int>::max()}) - (int)${4:s}.order_of_key({${5:x}, numeric_limits<int>::min()}); })"
+    ],
+    "description": "Count elements in value range [x, y] within a[l..r] in O(log^2 n)."
+  },
+  "PointUpdateMergeSortTree: K-th Element": {
+    "prefix": [
+      "cp-pmst-kth"
+    ],
+    "body": [
+      "[&](${1:long long} low, ${1:long long} high) {",
+      "    ${1:long long} ans = high;",
+      "    while (low <= high) {",
+      "        ${1:long long} mid = low + (high - low) / 2;",
+      "        int cnt = ${2:mst}.query(${3:l}, ${4:r}, [&](const auto &s) {",
+      "            return (int)s.order_of_key({mid, numeric_limits<int>::max()});",
+      "        });",
+      "        if (cnt >= ${5:k}) {",
+      "            ans = mid;",
+      "            high = mid - 1;",
+      "        } else {",
+      "            low = mid + 1;",
+      "        }",
+      "    }",
+      "    return ans;",
+      "}(${6:-1e9}, ${7:1e9})"
+    ],
+    "description": "Binary search for k-th smallest element (1-indexed k) in range [l, r] in O(log^3 n)."
+  },
+  "PointUpdateMergeSortTree: Helper Functions": {
+    "prefix": [
+      "cp-pmst-helpers",
+      "cp-pmst-utils"
+    ],
+    "body": [
+      "template <class T, class Val = T>",
+      "int count_leq(const PointUpdateMergeSortTree<T> &mst, int l, int r, const Val &x) {",
+      "    return mst.query(l, r, [&](const auto &s) { return (int)s.order_of_key({(T)x, numeric_limits<int>::max()}); });",
+      "}",
+      "template <class T, class Val = T>",
+      "int count_lt(const PointUpdateMergeSortTree<T> &mst, int l, int r, const Val &x) {",
+      "    return mst.query(l, r, [&](const auto &s) { return (int)s.order_of_key({(T)x, numeric_limits<int>::min()}); });",
+      "}",
+      "template <class T, class Val = T>",
+      "int count_geq(const PointUpdateMergeSortTree<T> &mst, int l, int r, const Val &x) {",
+      "    if (l > r) return 0;",
+      "    return (r - l + 1) - count_lt(mst, l, r, x);",
+      "}",
+      "template <class T, class Val = T>",
+      "int count_gt(const PointUpdateMergeSortTree<T> &mst, int l, int r, const Val &x) {",
+      "    if (l > r) return 0;",
+      "    return (r - l + 1) - count_leq(mst, l, r, x);",
+      "}",
+      "template <class T, class Val = T>",
+      "int count_range(const PointUpdateMergeSortTree<T> &mst, int l, int r, const Val &x, const Val &y) {",
+      "    if (x > y || l > r) return 0;",
+      "    return mst.query(l, r, [&](const auto &s) { return (int)s.order_of_key({(T)y, numeric_limits<int>::max()}) - (int)s.order_of_key({(T)x, numeric_limits<int>::min()}); });",
+      "}",
+      "template <class T>",
+      "T kth(const PointUpdateMergeSortTree<T> &mst, int l, int r, int k, T min_val = (T)-1e9, T max_val = (T)1e9) {",
+      "    T low = min_val, high = max_val, ans = max_val;",
+      "    while (low <= high) {",
+      "        T mid = low + (high - low) / 2;",
+      "        if (count_leq(mst, l, r, mid) >= k) { ans = mid; high = mid - 1; }",
+      "        else { low = mid + 1; }",
+      "    }",
+      "    return ans;",
+      "}"
+    ],
+    "description": "Standalone helper functions for PointUpdateMergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range, kth)."
   }
 }

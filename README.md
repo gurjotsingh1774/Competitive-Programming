@@ -221,7 +221,7 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-lazy-pst-sum-update`: Add $d$ to range $[l, r]$ on latest version and push new root.
   - `cp-lazy-pst-sum-query`: Query range sum of $[l, r]$ on historical version `ver`.
   - `cp-lazy-pst-sum-rollback`: Roll back to a previous version `ver`.
-- **Merge Sort Tree (Range Order Queries)**:
+- **Merge Sort Tree (Range Order Queries - Static)**:
   - `cp-merge-sort-tree`, `cp-mst`: Merge Sort Tree for static range order queries in $\mathcal{O}(\log^2 n)$ (0-indexed, lean struct with generic lambda query).
   - `cp-mst-init`: Instantiate MergeSortTree over vector `a`.
   - `cp-mst-leq`: Count elements $\le x$ in range $[l, r]$ (`upper_bound`).
@@ -231,6 +231,17 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-mst-range`: Count elements in value range $[x, y]$ within range $[l, r]$.
   - `cp-mst-query`: Custom canonical segment query lambda over range $[l, r]$.
   - `cp-mst-helpers`, `cp-mst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`).
+- **Point Update Merge Sort Tree (Dynamic PBDS MST)**:
+  - `cp-point-update-mst`, `cp-pmst`: Point-update Merge Sort Tree via PBDS ordered set of pairs with duplicate handling (0-indexed).
+  - `cp-pmst-init`: Instantiate PointUpdateMergeSortTree over vector `a`.
+  - `cp-pmst-update`: Point update $a[idx] = new\_val$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-leq`: Count elements $\le x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-lt`: Count elements $< x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-geq`: Count elements $\ge x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-gt`: Count elements $> x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-range`: Count elements in value range $[x, y]$ within range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
+  - `cp-pmst-kth`: Range $k$-th smallest element query via binary search on answer in $\mathcal{O}(\log^3 n)$.
+  - `cp-pmst-helpers`, `cp-pmst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`, `kth`).
 - `cp-lichao-tree`: Li Chao Segment Tree for dynamic line insertions and minimum/maximum evaluation at $x$.
 
 </details>
