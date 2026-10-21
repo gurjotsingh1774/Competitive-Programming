@@ -1,6 +1,6 @@
 # Competitive Programming Toolkit & C++ Library
 
-A high-performance, battle-tested competitive programming library and workspace featuring **171 production-grade C++ snippets** organized across 11 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
+A high-performance, battle-tested competitive programming library and workspace featuring **172 production-grade C++ snippets** organized across 11 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
 
 ---
 
@@ -153,7 +153,7 @@ Prefixes: `cp-template`, `cpplate`
 
 ---
 
-## Modular Snippets Catalog (171 Snippets)
+## Modular Snippets Catalog (172 Snippets)
 
 ### Module Breakdown
 
@@ -161,7 +161,7 @@ Prefixes: `cp-template`, `cpplate`
 | :--- | :--- | :---: | :--- |
 | [`cp-templates.code-snippets`](file:///.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
 | [`cp-techniques.code-snippets`](file:///.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, meet-in-the-middle, bit tricks. |
-| [`cp-segtree.code-snippets`](file:///.vscode/cp-segtree.code-snippets) | Segment Trees | **25** | Iterative SegTree, Lazy SegTree (ACL style), Persistent SegTree (PST + query workflows), Li Chao Tree. |
+| [`cp-segtree.code-snippets`](file:///.vscode/cp-segtree.code-snippets) | Segment Trees | **26** | Iterative SegTree, Lazy SegTree (ACL style), Persistent SegTree (PST + query workflows), Lazy PST with Hashing, Li Chao Tree. |
 | [`cp-data-structures.code-snippets`](file:///.vscode/cp-data-structures.code-snippets) | Data Structures | **26** | DSU (Standard, Rollback, Potential), Fenwick Trees (1D, Range-Add, 2D), Tries, Heaps, Lists, PBDS Ordered Set. |
 | [`cp-graphs.code-snippets`](file:///.vscode/cp-graphs.code-snippets) | Graph Theory & Trees | **26** | Dijkstra, 0-1 BFS, SPFA, Floyd-Warshall, Dinic Flow, MCMF, Hopcroft-Karp, Tarjan SCC, 2-SAT, HLD, LCA, MST. |
 | [`cp-math.code-snippets`](file:///.vscode/cp-math.code-snippets) | Math & Number Theory | **34** | Modular integer (`mint`), Miller-Rabin, Pollard's Rho, Linear Sieve, CRT, NTT, Matrix Ops, Linear Basis, Lucas. |
@@ -170,7 +170,7 @@ Prefixes: `cp-template`, `cpplate`
 | [`cp-strings.code-snippets`](file:///.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash ($2^{61}-1$), Aho-Corasick, Suffix Array + LCP, Booth's. |
 | [`cp-geometry.code-snippets`](file:///.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Andrew's Monotone Chain Convex Hull, Graham Scan, Shoelace Area, Point in Polygon. |
 | [`cp-backtracking.code-snippets`](file:///.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations/Permutations generator. |
-| **Total** | | **171** | |
+| **Total** | | **172** | |
 
 ---
 
@@ -199,7 +199,7 @@ Prefixes: `cp-template`, `cpplate`
 </details>
 
 <details>
-<summary><b>3. Segment Trees & Range Queries (25 snippets)</b></summary>
+<summary><b>3. Segment Trees & Range Queries (26 snippets)</b></summary>
 
 - `cp-segtree`, `segtree`: Iterative Point-Update Range-Query Segment Tree.
 - `cp-lazy-segtree`: AtCoder Library (ACL) style general Lazy Segment Tree with user-defined monoids and mappings.
@@ -209,6 +209,7 @@ Prefixes: `cp-template`, `cpplate`
 - `cp-pst-kth`: $k$-th smallest query in subarray $a[l \dots r]$ translated back to value.
 - `cp-pst-leq`: Count elements $\le x$ in subarray $a[l \dots r]$.
 - `cp-pst-count`: Count elements in value range $[lo, hi]$ in subarray $a[l \dots r]$.
+- `cp-lazy-pst`: Lazy Persistent Segment Tree with rolling polynomial string hash for range flips and $\mathcal{O}(\log n)$ lexicographical comparison.
 - `cp-lichao-tree`: Li Chao Segment Tree for dynamic line insertions and minimum/maximum evaluation at $x$.
 
 </details>
