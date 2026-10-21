@@ -1,6 +1,6 @@
 # Competitive Programming Toolkit & C++ Library
 
-A high-performance, battle-tested competitive programming library and workspace featuring **181 production-grade C++ snippets** organized across 11 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
+A high-performance, battle-tested competitive programming library and workspace featuring **188 production-grade C++ snippets** organized across 11 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
 
 ---
 
@@ -153,7 +153,7 @@ Prefixes: `cp-template`, `cpplate`
 
 ---
 
-## Modular Snippets Catalog (181 Snippets)
+## Modular Snippets Catalog (188 Snippets)
 
 ### Module Breakdown
 
@@ -161,7 +161,7 @@ Prefixes: `cp-template`, `cpplate`
 | :--- | :--- | :---: | :--- |
 | [`cp-templates.code-snippets`](./.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
 | [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, meet-in-the-middle, bit tricks. |
-| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees | **35** | Iterative SegTree, Lazy SegTree (ACL style), Persistent SegTree (PST + queries), Lazy PST (Flip/Hash & Range Add/Sum), Li Chao Tree. |
+| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees | **42** | Iterative SegTree, Lazy SegTree (ACL style), PST, Lazy PST, Merge Sort Tree, Li Chao Tree. |
 | [`cp-data-structures.code-snippets`](./.vscode/cp-data-structures.code-snippets) | Data Structures | **26** | DSU (Standard, Rollback, Potential), Fenwick Trees (1D, Range-Add, 2D), Tries, Heaps, Lists, PBDS Ordered Set. |
 | [`cp-graphs.code-snippets`](./.vscode/cp-graphs.code-snippets) | Graph Theory & Trees | **26** | Dijkstra, 0-1 BFS, SPFA, Floyd-Warshall, Dinic Flow, MCMF, Hopcroft-Karp, Tarjan SCC, 2-SAT, HLD, LCA, MST. |
 | [`cp-math.code-snippets`](./.vscode/cp-math.code-snippets) | Math & Number Theory | **34** | Modular integer (`mint`), Miller-Rabin, Pollard's Rho, Linear Sieve, CRT, NTT, Matrix Ops, Linear Basis, Lucas. |
@@ -170,7 +170,7 @@ Prefixes: `cp-template`, `cpplate`
 | [`cp-strings.code-snippets`](./.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash ($2^{61}-1$), Aho-Corasick, Suffix Array + LCP, Booth's. |
 | [`cp-geometry.code-snippets`](./.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Andrew's Monotone Chain Convex Hull, Graham Scan, Shoelace Area, Point in Polygon. |
 | [`cp-backtracking.code-snippets`](./.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations/Permutations generator. |
-| **Total** | | **181** | |
+| **Total** | | **188** | |
 
 ---
 
@@ -199,7 +199,7 @@ Prefixes: `cp-template`, `cpplate`
 </details>
 
 <details>
-<summary><b>3. Segment Trees & Range Queries (35 snippets)</b></summary>
+<summary><b>3. Segment Trees & Range Queries (42 snippets)</b></summary>
 
 - `cp-segtree`, `segtree`: Iterative Point-Update Range-Query Segment Tree.
 - `cp-lazy-segtree`: AtCoder Library (ACL) style general Lazy Segment Tree with user-defined monoids and mappings.
@@ -210,17 +210,25 @@ Prefixes: `cp-template`, `cpplate`
 - `cp-pst-leq`: Count elements $\le x$ in subarray $a[l \dots r]$.
 - `cp-pst-count`: Count elements in value range $[lo, hi]$ in subarray $a[l \dots r]$.
 - **Lazy Persistent Segment Tree (Range Flip / Hash)**:
-  - `cp-lazy-pst-flip`, `cp-lazy-pst-binary`, `cp-lazy-pst`: Binary range flips with rolling string hash and $\mathcal{O}(\log n)$ lexicographical comparison.
+  - `cp-lazy-pst-flip`, `cp-lazy-pst-binary`, `cp-lazy-pst`: Binary range flips with rolling string hash and $\mathcal{O}(\log n)$ lexicographical comparison (0-indexed).
   - `cp-lazy-pst-flip-init`: Instantiate binary LazyPersistentSegTree of length $n$.
   - `cp-lazy-pst-flip-update`: Invert range $[l, r]$ and create new version.
   - `cp-lazy-pst-flip-compare`: Lexicographically compare two tree versions in $\mathcal{O}(\log n)$.
   - `cp-lazy-pst-flip-print`: Print full bit sequence of a root version.
 - **Persistent Lazy Segment Tree (Range Add, Range Sum)**:
-  - `cp-lazy-pst-sum`, `cp-persistent-lazy-segtree`, `cp-pst-lazy`: Range Add and Range Sum with historical queries without allocation, and version rollbacks.
+  - `cp-lazy-pst-sum`, `cp-persistent-lazy-segtree`, `cp-pst-lazy`: Range Add and Range Sum with historical queries without allocation, and version rollbacks (0-indexed).
   - `cp-lazy-pst-sum-init`: Instantiate PersistentLazySegTree of length $n$ with initial array $a$.
   - `cp-lazy-pst-sum-update`: Add $d$ to range $[l, r]$ on latest version and push new root.
   - `cp-lazy-pst-sum-query`: Query range sum of $[l, r]$ on historical version `ver`.
   - `cp-lazy-pst-sum-rollback`: Roll back to a previous version `ver`.
+- **Merge Sort Tree (Range Order Queries)**:
+  - `cp-merge-sort-tree`, `cp-mst`: Merge Sort Tree for static range order queries in $\mathcal{O}(\log^2 n)$ (0-indexed).
+  - `cp-mst-init`: Instantiate MergeSortTree over vector `a`.
+  - `cp-mst-leq`: Count elements $\le x$ in range $[l, r]$ (upper_bound).
+  - `cp-mst-lt`: Count elements $< x$ in range $[l, r]$ (lower_bound).
+  - `cp-mst-geq`: Count elements $\ge x$ in range $[l, r]$ (end - lower_bound).
+  - `cp-mst-gt`: Count elements $> x$ in range $[l, r]$ (end - upper_bound).
+  - `cp-mst-range`: Count elements in value range $[x, y]$ within range $[l, r]$.
 - `cp-lichao-tree`: Li Chao Segment Tree for dynamic line insertions and minimum/maximum evaluation at $x$.
 
 </details>

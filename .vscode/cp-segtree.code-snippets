@@ -931,5 +931,169 @@
       "${1:tree}.rollback(${2:ver});  // Discard all versions created after ver"
     ],
     "description": "Roll back PersistentLazySegTree to version ver."
+  },
+  "Merge Sort Tree": {
+    "prefix": [
+      "cp-merge-sort-tree",
+      "cp-mst"
+    ],
+    "body": [
+      "template <class T = int>",
+      "struct MergeSortTree {",
+      "    int n;",
+      "    vector<vector<T>> tree;",
+      "",
+      "    MergeSortTree(int n_ = 0) : n(n_), tree(4 * n_) {}",
+      "    MergeSortTree(const vector<T> &a) : n((int)a.size()), tree(4 * n) {",
+      "        if (n > 0) build(1, 0, n - 1, a);",
+      "    }",
+      "",
+      "    void build(int node, int start, int end, const vector<T> &a) {",
+      "        if (start == end) {",
+      "            tree[node] = {a[start]};",
+      "            return;",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        build(2 * node, start, mid, a);",
+      "        build(2 * node + 1, mid + 1, end, a);",
+      "        tree[node].resize(tree[2 * node].size() + tree[2 * node + 1].size());",
+      "        merge(tree[2 * node].begin(), tree[2 * node].end(),",
+      "              tree[2 * node + 1].begin(), tree[2 * node + 1].end(),",
+      "              tree[node].begin());",
+      "    }",
+      "",
+      "    // Count elements <= x in a[l..r] (upper_bound)",
+      "    int count_leq(int l, int r, const T &x) const {",
+      "        if (l > r || l < 0 || r >= n) return 0;",
+      "        return query_leq(1, 0, n - 1, l, r, x);",
+      "    }",
+      "",
+      "    // Count elements < x in a[l..r] (lower_bound)",
+      "    int count_lt(int l, int r, const T &x) const {",
+      "        if (l > r || l < 0 || r >= n) return 0;",
+      "        return query_lt(1, 0, n - 1, l, r, x);",
+      "    }",
+      "",
+      "    // Count elements >= x in a[l..r] (end - lower_bound)",
+      "    int count_geq(int l, int r, const T &x) const {",
+      "        if (l > r || l < 0 || r >= n) return 0;",
+      "        return query_geq(1, 0, n - 1, l, r, x);",
+      "    }",
+      "",
+      "    // Count elements > x in a[l..r] (end - upper_bound)",
+      "    int count_gt(int l, int r, const T &x) const {",
+      "        if (l > r || l < 0 || r >= n) return 0;",
+      "        return query_gt(1, 0, n - 1, l, r, x);",
+      "    }",
+      "",
+      "    // Count elements in [x, y] in a[l..r] (upper_bound(y) - lower_bound(x))",
+      "    int count_range(int l, int r, const T &x, const T &y) const {",
+      "        if (l > r || l < 0 || r >= n || x > y) return 0;",
+      "        return query_range(1, 0, n - 1, l, r, x, y);",
+      "    }",
+      "",
+      "private:",
+      "    int query_leq(int node, int start, int end, int l, int r, const T &x) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) {",
+      "            return (int)(upper_bound(tree[node].begin(), tree[node].end(), x) - tree[node].begin());",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_leq(2 * node, start, mid, l, r, x) + query_leq(2 * node + 1, mid + 1, end, l, r, x);",
+      "    }",
+      "",
+      "    int query_lt(int node, int start, int end, int l, int r, const T &x) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) {",
+      "            return (int)(lower_bound(tree[node].begin(), tree[node].end(), x) - tree[node].begin());",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_lt(2 * node, start, mid, l, r, x) + query_lt(2 * node + 1, mid + 1, end, l, r, x);",
+      "    }",
+      "",
+      "    int query_geq(int node, int start, int end, int l, int r, const T &x) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) {",
+      "            return (int)(tree[node].end() - lower_bound(tree[node].begin(), tree[node].end(), x));",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_geq(2 * node, start, mid, l, r, x) + query_geq(2 * node + 1, mid + 1, end, l, r, x);",
+      "    }",
+      "",
+      "    int query_gt(int node, int start, int end, int l, int r, const T &x) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) {",
+      "            return (int)(tree[node].end() - upper_bound(tree[node].begin(), tree[node].end(), x));",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_gt(2 * node, start, mid, l, r, x) + query_gt(2 * node + 1, mid + 1, end, l, r, x);",
+      "    }",
+      "",
+      "    int query_range(int node, int start, int end, int l, int r, const T &x, const T &y) const {",
+      "        if (end < l || r < start) return 0;",
+      "        if (l <= start && end <= r) {",
+      "            return (int)(upper_bound(tree[node].begin(), tree[node].end(), y) -",
+      "                         lower_bound(tree[node].begin(), tree[node].end(), x));",
+      "        }",
+      "        int mid = start + (end - start) / 2;",
+      "        return query_range(2 * node, start, mid, l, r, x, y) + query_range(2 * node + 1, mid + 1, end, l, r, x, y);",
+      "    }",
+      "};"
+    ],
+    "description": "Merge Sort Tree for static range order queries (<= x, < x, >= x, > x, and [x, y]) in O(log^2 n). 0-indexed [l, r] inclusive."
+  },
+  "MergeSortTree: Initialize": {
+    "prefix": [
+      "cp-mst-init"
+    ],
+    "body": [
+      "MergeSortTree<${1:int}> ${2:mst}(${3:a});  // 0-indexed: a is vector<${1}>"
+    ],
+    "description": "Instantiate a MergeSortTree over vector a (0-indexed)."
+  },
+  "MergeSortTree: Count <= x": {
+    "prefix": [
+      "cp-mst-leq"
+    ],
+    "body": [
+      "${1:mst}.count_leq(${2:l}, ${3:r}, ${4:x})"
+    ],
+    "description": "Count elements <= x in range [l, r] using upper_bound in O(log^2 n)."
+  },
+  "MergeSortTree: Count < x": {
+    "prefix": [
+      "cp-mst-lt"
+    ],
+    "body": [
+      "${1:mst}.count_lt(${2:l}, ${3:r}, ${4:x})"
+    ],
+    "description": "Count elements < x in range [l, r] using lower_bound in O(log^2 n)."
+  },
+  "MergeSortTree: Count >= x": {
+    "prefix": [
+      "cp-mst-geq"
+    ],
+    "body": [
+      "${1:mst}.count_geq(${2:l}, ${3:r}, ${4:x})"
+    ],
+    "description": "Count elements >= x in range [l, r] using end - lower_bound in O(log^2 n)."
+  },
+  "MergeSortTree: Count > x": {
+    "prefix": [
+      "cp-mst-gt"
+    ],
+    "body": [
+      "${1:mst}.count_gt(${2:l}, ${3:r}, ${4:x})"
+    ],
+    "description": "Count elements > x in range [l, r] using end - upper_bound in O(log^2 n)."
+  },
+  "MergeSortTree: Count in [x, y]": {
+    "prefix": [
+      "cp-mst-range"
+    ],
+    "body": [
+      "${1:mst}.count_range(${2:l}, ${3:r}, ${4:x}, ${5:y})"
+    ],
+    "description": "Count elements in value range [x, y] within a[l..r] in O(log^2 n)."
   }
 }
