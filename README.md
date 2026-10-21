@@ -159,17 +159,17 @@ Prefixes: `cp-template`, `cpplate`
 
 | Module File | Category | Snippets | Primary Algorithms & Data Structures |
 | :--- | :--- | :---: | :--- |
-| [`cp-templates.code-snippets`](file:///.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
-| [`cp-techniques.code-snippets`](file:///.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, meet-in-the-middle, bit tricks. |
-| [`cp-segtree.code-snippets`](file:///.vscode/cp-segtree.code-snippets) | Segment Trees | **35** | Iterative SegTree, Lazy SegTree (ACL style), Persistent SegTree (PST + queries), Lazy PST (Flip/Hash & Range Add/Sum), Li Chao Tree. |
-| [`cp-data-structures.code-snippets`](file:///.vscode/cp-data-structures.code-snippets) | Data Structures | **26** | DSU (Standard, Rollback, Potential), Fenwick Trees (1D, Range-Add, 2D), Tries, Heaps, Lists, PBDS Ordered Set. |
-| [`cp-graphs.code-snippets`](file:///.vscode/cp-graphs.code-snippets) | Graph Theory & Trees | **26** | Dijkstra, 0-1 BFS, SPFA, Floyd-Warshall, Dinic Flow, MCMF, Hopcroft-Karp, Tarjan SCC, 2-SAT, HLD, LCA, MST. |
-| [`cp-math.code-snippets`](file:///.vscode/cp-math.code-snippets) | Math & Number Theory | **34** | Modular integer (`mint`), Miller-Rabin, Pollard's Rho, Linear Sieve, CRT, NTT, Matrix Ops, Linear Basis, Lucas. |
-| [`cp-searching-sorting.code-snippets`](file:///.vscode/cp-searching-sorting.code-snippets) | Search & Sorting | **15** | Predicate Binary Search (`first-true`), Ternary Search, Mo's Algorithm, Merge/Quick/Heap/Radix Sorts. |
-| [`cp-dp.code-snippets`](file:///.vscode/cp-dp.code-snippets) | Dynamic Programming | **12** | LIS, LCS, Knapsacks (0/1, Unbounded, Bitset), Digit DP, SOS DP, Divide & Conquer DP, Bitmask TSP. |
-| [`cp-strings.code-snippets`](file:///.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash ($2^{61}-1$), Aho-Corasick, Suffix Array + LCP, Booth's. |
-| [`cp-geometry.code-snippets`](file:///.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Andrew's Monotone Chain Convex Hull, Graham Scan, Shoelace Area, Point in Polygon. |
-| [`cp-backtracking.code-snippets`](file:///.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations/Permutations generator. |
+| [`cp-templates.code-snippets`](./.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
+| [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, meet-in-the-middle, bit tricks. |
+| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees | **35** | Iterative SegTree, Lazy SegTree (ACL style), Persistent SegTree (PST + queries), Lazy PST (Flip/Hash & Range Add/Sum), Li Chao Tree. |
+| [`cp-data-structures.code-snippets`](./.vscode/cp-data-structures.code-snippets) | Data Structures | **26** | DSU (Standard, Rollback, Potential), Fenwick Trees (1D, Range-Add, 2D), Tries, Heaps, Lists, PBDS Ordered Set. |
+| [`cp-graphs.code-snippets`](./.vscode/cp-graphs.code-snippets) | Graph Theory & Trees | **26** | Dijkstra, 0-1 BFS, SPFA, Floyd-Warshall, Dinic Flow, MCMF, Hopcroft-Karp, Tarjan SCC, 2-SAT, HLD, LCA, MST. |
+| [`cp-math.code-snippets`](./.vscode/cp-math.code-snippets) | Math & Number Theory | **34** | Modular integer (`mint`), Miller-Rabin, Pollard's Rho, Linear Sieve, CRT, NTT, Matrix Ops, Linear Basis, Lucas. |
+| [`cp-searching-sorting.code-snippets`](./.vscode/cp-searching-sorting.code-snippets) | Search & Sorting | **15** | Predicate Binary Search (`first-true`), Ternary Search, Mo's Algorithm, Merge/Quick/Heap/Radix Sorts. |
+| [`cp-dp.code-snippets`](./.vscode/cp-dp.code-snippets) | Dynamic Programming | **12** | LIS, LCS, Knapsacks (0/1, Unbounded, Bitset), Digit DP, SOS DP, Divide & Conquer DP, Bitmask TSP. |
+| [`cp-strings.code-snippets`](./.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash ($2^{61}-1$), Aho-Corasick, Suffix Array + LCP, Booth's. |
+| [`cp-geometry.code-snippets`](./.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Andrew's Monotone Chain Convex Hull, Graham Scan, Shoelace Area, Point in Polygon. |
+| [`cp-backtracking.code-snippets`](./.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations/Permutations generator. |
 | **Total** | | **181** | |
 
 ---
@@ -345,7 +345,7 @@ Prefixes: `cp-template`, `cpplate`
 
 ### 1. Build & Run Helper (`tools/run.sh`)
 
-[tools/run.sh](file:///mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/tools/run.sh) provides automated compilation and execution with safety diagnostics or optimized release flags.
+[tools/run.sh](./mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/tools/run.sh) provides automated compilation and execution with safety diagnostics or optimized release flags.
 
 #### Syntax
 
@@ -380,7 +380,7 @@ tools/run.sh solution.cpp input.txt fast
 
 ### 2. Automated Differential Stress Tester (`tools/stress.sh`)
 
-[tools/stress.sh](file:///mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/tools/stress.sh) conducts differential testing between an optimized solution and a brute-force solution on randomized testcases.
+[tools/stress.sh](./mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/tools/stress.sh) conducts differential testing between an optimized solution and a brute-force solution on randomized testcases.
 
 #### Syntax
 
@@ -406,7 +406,7 @@ Upon mismatch, crash, or timeout (5s for `sol`, 20s for `brute`):
 
 ## VS Code Integration & Settings
 
-[.vscode/settings.json](file:///mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/.vscode/settings.json) ensures instant snippet expansion:
+[.vscode/settings.json](./mnt/c/Users/Gurjot%20Singh/Documents/Competitive%20Programming/.vscode/settings.json) ensures instant snippet expansion:
 
 ```json
 {
