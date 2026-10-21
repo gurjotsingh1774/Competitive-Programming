@@ -185,7 +185,7 @@
     ],
     "description": "Skeleton for a SegTree with a custom node type and merge lambda."
   },
-  "Lazy Segment Tree (ACL Style)": {
+  "Lazy Segment Tree": {
     "prefix": [
       "cp-lazy-segtree",
       "cp-lazy",
@@ -327,7 +327,7 @@
       "    }",
       "};"
     ],
-    "description": "Lazy segment tree (ACL style): point_set / point_query / range_query [l, r) / total_query / point_update / range_update / max_right. Needs Node, combine, node_id, Tag, apply_tag, compose_tag, tag_id - use the lseg-* snippets for ready-made instantiations."
+    "description": "Lazy segment tree: point_set / point_query / range_query [l, r) / total_query / point_update / range_update / max_right. Needs Node, combine, node_id, Tag, apply_tag, compose_tag, tag_id - use the lseg-* snippets for ready-made instantiations."
   },
   "LazySegTree: Range Add, Range Sum": {
     "prefix": [
@@ -529,100 +529,70 @@
       "cp-persist"
     ],
     "body": [
-      "// Persistent segment tree over VALUES in [0, universe). Version i = first i appended elements (version 0 = empty).",
-      "// Subarray queries a[l..r] (0-based, INCLUSIVE) use the difference of versions r+1 and l.",
       "struct PersistentSegTree {",
-      "    struct Node { int left = 0, right = 0, count = 0; };",
-      "    int universe;",
-      "    vector<Node> nodes;",
-      "    vector<int> version_root;",
-      "",
-      "    PersistentSegTree(int universe_ = 1) : universe(universe_) {",
-      "        nodes.push_back(Node());",
-      "        version_root.push_back(0);",
-      "    }",
-      "",
-      "    int insert(int prev, int lo, int hi, int value) {",
-      "        int cur = (int)nodes.size();",
-      "        nodes.push_back(nodes[prev]);",
-      "        nodes[cur].count++;",
+      "    struct Node { int l = 0, r = 0, cnt = 0; };",
+      "    int n;",
+      "    vector<Node> t;",
+      "    vector<int> roots;",
+      "    PersistentSegTree(int n_ = 1) : n(n_) { t.push_back(Node()); roots.push_back(0); }",
+      "    int add(int prev, int lo, int hi, int pos) {",
+      "        int cur = (int)t.size();",
+      "        t.push_back(t[prev]);",
+      "        t[cur].cnt++;",
       "        if (lo < hi) {",
       "            int mid = (lo + hi) / 2;",
-      "            if (value <= mid) { int child = insert(nodes[prev].left, lo, mid, value); nodes[cur].left = child; }",
-      "            else { int child = insert(nodes[prev].right, mid + 1, hi, value); nodes[cur].right = child; }",
+      "            if (pos <= mid) { int c = add(t[prev].l, lo, mid, pos); t[cur].l = c; }",
+      "            else { int c = add(t[prev].r, mid + 1, hi, pos); t[cur].r = c; }",
       "        }",
       "        return cur;",
       "    }",
-      "",
-      "    // create the next version with `value` (0 <= value < universe) added",
-      "    void append(int value) {",
-      "        int root = insert(version_root.back(), 0, universe - 1, value);",
-      "        version_root.push_back(root);",
-      "    }",
-      "",
-      "    // append every element of a (each in [0, universe))",
-      "    void build(const vector<int> &a) {",
-      "        int depth = 1;",
-      "        while ((1 << depth) < universe) depth++;",
-      "        nodes.reserve(nodes.size() + a.size() * (depth + 1));",
-      "        for (int x : a) append(x);",
-      "    }",
-      "",
-      "    // k-th smallest (1-based) among a[l..r], 1 <= k <= r - l + 1",
-      "    int kth_smallest(int l, int r, int k) const {",
-      "        int u = version_root[r + 1], v = version_root[l], lo = 0, hi = universe - 1;",
+      "    void push_value(int v) { int r = add(roots.back(), 0, n - 1, v); roots.push_back(r); }",
+      "    void build(const vector<int> &a) { for (int x : a) push_value(x); }",
+      "    int kth(int l, int r, int k) const {  // a[l..r] inclusive, 1 <= k <= r-l+1",
+      "        int u = roots[r + 1], v = roots[l], lo = 0, hi = n - 1;",
       "        while (lo < hi) {",
-      "            int mid = (lo + hi) / 2, in_left = nodes[nodes[u].left].count - nodes[nodes[v].left].count;",
-      "            if (k <= in_left) u = nodes[u].left, v = nodes[v].left, hi = mid;",
-      "            else k -= in_left, u = nodes[u].right, v = nodes[v].right, lo = mid + 1;",
+      "            int mid = (lo + hi) / 2, c = t[t[u].l].cnt - t[t[v].l].cnt;",
+      "            if (k <= c) u = t[u].l, v = t[v].l, hi = mid;",
+      "            else k -= c, u = t[u].r, v = t[v].r, lo = mid + 1;",
       "        }",
       "        return lo;",
       "    }",
-      "",
-      "    // number of elements <= x among a[l..r]",
-      "    int count_leq(int l, int r, int x) const {",
+      "    int count_leq(int l, int r, int x) const {  // elements <= x in a[l..r]",
       "        if (x < 0) return 0;",
-      "        if (x >= universe - 1) return r - l + 1;",
-      "        int u = version_root[r + 1], v = version_root[l], lo = 0, hi = universe - 1, result = 0;",
+      "        if (x >= n - 1) return r - l + 1;",
+      "        int u = roots[r + 1], v = roots[l], lo = 0, hi = n - 1, res = 0;",
       "        while (lo < hi) {",
       "            int mid = (lo + hi) / 2;",
-      "            if (x <= mid) u = nodes[u].left, v = nodes[v].left, hi = mid;",
-      "            else result += nodes[nodes[u].left].count - nodes[nodes[v].left].count, u = nodes[u].right, v = nodes[v].right, lo = mid + 1;",
+      "            if (x <= mid) u = t[u].l, v = t[v].l, hi = mid;",
+      "            else res += t[t[u].l].cnt - t[t[v].l].cnt, u = t[u].r, v = t[v].r, lo = mid + 1;",
       "        }",
-      "        return result + nodes[u].count - nodes[v].count;",
+      "        return res + t[u].cnt - t[v].cnt;",
       "    }",
-      "",
-      "    // number of elements with low <= value <= high among a[l..r]",
       "    int count_range(int l, int r, int low, int high) const {",
       "        if (low > high) return 0;",
       "        return count_leq(l, r, high) - count_leq(l, r, low - 1);",
       "    }",
       "};"
     ],
-    "description": "Persistent (path-copying) segment tree over values: kth_smallest(l, r, k), count_leq(l, r, x), count_range(l, r, low, high) on a[l..r] inclusive, O(log n) each. Use pst-init to coordinate-compress and build."
+    "description": "Persistent (path-copying) segment tree over values: kth(l, r, k), count_leq(l, r, x), count_range(l, r, low, high) on a[l..r] inclusive, O(log n) each. Use pst-init to coordinate-compress and build."
   },
   "PST: Compress and build": {
     "prefix": [
       "cp-pst-init"
     ],
     "body": [
-      "// Compress ${1:a} to ranks 0..m-1, then build one version per element",
-      "vector<${2:ll}> ${3:vals}(${1}.begin(), ${1}.end());",
-      "sort(${3}.begin(), ${3}.end());",
-      "${3}.erase(unique(${3}.begin(), ${3}.end()), ${3}.end());",
-      "vector<int> ${4:ranks}(${1}.size());",
-      "for (size_t i = 0; i < ${1}.size(); i++) ${4}[i] = lower_bound(${3}.begin(), ${3}.end(), ${1}[i]) - ${3}.begin();",
-      "PersistentSegTree ${5:pst}((int)${3}.size());",
-      "${5}.build(${4});"
+      "Compressor<${2:ll}> ${3:C}(${1:a});",
+      "PersistentSegTree ${4:pst}(${3}.size());",
+      "${4}.build(${3}.rnk);"
     ],
-    "description": "Coordinate-compress an array and build a PersistentSegTree (keeps vals for mapping answers back)."
+    "description": "Coordinate-compress an array using Compressor and build a PersistentSegTree."
   },
   "PST: k-th smallest query": {
     "prefix": [
       "cp-pst-kth"
     ],
     "body": [
-      "${1:vals}[${2:pst}.kth_smallest(${3:l}, ${4:r}, ${5:k})]  // a[l..r] inclusive, k 1-based; maps rank back to value"
+      "${1:C}.value(${2:pst}.kth(${3:l}, ${4:r}, ${5:k}))  // a[l..r] inclusive, k 1-based; maps rank back to value"
     ],
     "description": "k-th smallest of a[l..r], translated back through the compressed values array."
   },
@@ -631,9 +601,7 @@
       "cp-pst-count"
     ],
     "body": [
-      "${2:pst}.count_range(${3:l}, ${4:r},",
-      "    (int)(lower_bound(${1:vals}.begin(), ${1}.end(), ${5:lo}) - ${1}.begin()),",
-      "    (int)(upper_bound(${1}.begin(), ${1}.end(), ${6:hi}) - ${1}.begin()) - 1)  // count of lo <= a[i] <= hi in a[l..r]"
+      "${2:pst}.count_range(${3:l}, ${4:r}, ${1:C}.rank_geq(${5:lo}), ${1:C}.rank_leq(${6:hi}))  // count of lo <= a[i] <= hi in a[l..r]"
     ],
     "description": "Count elements with lo <= value <= hi in a[l..r] using original (uncompressed) bounds."
   },
@@ -642,7 +610,7 @@
       "cp-pst-leq"
     ],
     "body": [
-      "${2:pst}.count_leq(${3:l}, ${4:r}, (int)(upper_bound(${1:vals}.begin(), ${1}.end(), ${5:x}) - ${1}.begin()) - 1)  // count of a[i] <= x in a[l..r]"
+      "${2:pst}.count_leq(${3:l}, ${4:r}, ${1:C}.rank_leq(${5:x}))  // count of a[i] <= x in a[l..r]"
     ],
     "description": "Count elements <= x in a[l..r] using an original (uncompressed) x."
   }
