@@ -40,18 +40,30 @@ Designed for competitive programming on platforms like **Codeforces**, **AtCoder
 ```text
 .
 ├── .vscode/
-│   ├── cp-templates.code-snippets         # Contest boilerplate, macros, fast I/O, debug print
-│   ├── cp-techniques.code-snippets        # Coordinate compression, 2D prefix sums, bit tricks
-│   ├── cp-segtree.code-snippets           # Iterative & Lazy segtrees, Persistent SegTree (PST)
-│   ├── cp-data-structures.code-snippets   # DSU (Standard/Rollback/Potential), Fenwick, Tries, PBDS
-│   ├── cp-graphs.code-snippets            # Dijkstra, 0-1 BFS, Dinic Flow, MCMF, Tarjan SCC, HLD, LCA
-│   ├── cp-math.code-snippets              # Mint, Sieve, Miller-Rabin, Pollard's Rho, NTT, Linear Basis
-│   ├── cp-dp.code-snippets                # LIS, LCS, Knapsacks, Digit DP, SOS DP, D&C optimization
-│   ├── cp-strings.code-snippets           # KMP, Z-algorithm, Manacher, Rolling Hash, Aho-Corasick, Suffix Array
-│   ├── cp-geometry.code-snippets          # Points & Vectors, Convex Hulls, Polygon Area, Intersections
-│   ├── cp-searching-sorting.code-snippets # Predicate Binary Search, Ternary Search, Mo's Algorithm, Sorts
-│   ├── cp-backtracking.code-snippets      # N-Queens, Knight's Tour, Graph Coloring, Combinations
-│   └── settings.json                      # VS Code configuration for top-priority snippet expansion
+│   ├── cp-templates.code-snippets              # Contest boilerplate, macros, fast I/O, debug print
+│   ├── cp-techniques.code-snippets             # Coordinate compression, 2D prefix sums, bit tricks
+│   ├── cp-segtree.code-snippets                # Iterative SegTree (Monoid) & Li Chao Tree
+│   ├── cp-lazy-segtree.code-snippets           # Lazy Segment Tree (ACL style range ops)
+│   ├── cp-persistent-segtree.code-snippets     # Persistent SegTree (PST) & Lazy PST (Flip/Sum)
+│   ├── cp-merge-sort-tree.code-snippets        # Static & Point-Update (PBDS) Merge Sort Trees
+│   ├── cp-dsu-fenwick.code-snippets            # DSU (Standard/Rollback/Potential), Fenwick, PBDS
+│   ├── cp-hash-linked-list.code-snippets       # Hash tables, Anti-hack custom hash, Linked Lists
+│   ├── cp-stack-queue.code-snippets            # Stacks, Queues, Deque, Monotonic Stacks, Shunting-Yard
+│   ├── cp-advanced-trees.code-snippets         # BST, AVL Tree, Red-Black Tree, Heaps, Tries
+│   ├── cp-graph-paths.code-snippets            # BFS, Dijkstra, 0-1 BFS, Bellman-Ford, Floyd-Warshall
+│   ├── cp-graph-connectivity.code-snippets     # MST, SCC (Tarjan/Kosaraju), 2-SAT, Bridges, BCC
+│   ├── cp-graph-flows.code-snippets            # Dinic Max Flow, Min-Cost Max-Flow, Hopcroft-Karp
+│   ├── cp-graph-trees.code-snippets            # HLD, Centroid Decomposition, LCA, Euler Tour
+│   ├── cp-math-number-theory.code-snippets     # Sieves, Miller-Rabin, Pollard's Rho, BSGS, Tonelli-Shanks
+│   ├── cp-math-combinatorics.code-snippets     # Binomial, Catalan, Combinations, Permutations
+│   ├── cp-math-algebra.code-snippets           # Modular integer (mint), Matrix, Linear Basis, CRT
+│   ├── cp-math-polynomials.code-snippets       # NTT, Polynomial Convolution, Inverse, Bostan-Mori
+│   ├── cp-dp.code-snippets                     # LIS, LCS, Knapsacks, Digit DP, SOS DP, D&C optimization
+│   ├── cp-strings.code-snippets                # KMP, Z-algorithm, Manacher, Rolling Hash, Suffix Array
+│   ├── cp-geometry.code-snippets               # Points & Vectors, Convex Hulls, Polygon Area
+│   ├── cp-searching-sorting.code-snippets      # Binary Search, Ternary Search, Mo's Algorithm, Sorts
+│   ├── cp-backtracking.code-snippets           # N-Queens, Knight's Tour, Graph Coloring, Combinations
+│   └── settings.json                           # VS Code configuration for snippet expansion
 ├── tools/
 │   ├── run.sh                             # Compilation runner (debug with sanitizers or fast -O2)
 │   └── stress.sh                          # Automated differential stress tester
@@ -153,24 +165,36 @@ Prefixes: `cp-template`, `cpplate`
 
 ---
 
-## Modular Snippets Catalog (188 Snippets)
+## Modular Snippets Catalog (200 Snippets across 23 Files)
 
 ### Module Breakdown
 
 | Module File | Category | Snippets | Primary Algorithms & Data Structures |
 | :--- | :--- | :---: | :--- |
 | [`cp-templates.code-snippets`](./.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
-| [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, meet-in-the-middle, bit tricks. |
-| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees | **42** | Iterative SegTree, Lazy SegTree (ACL style), PST, Lazy PST, Merge Sort Tree, Li Chao Tree. |
-| [`cp-data-structures.code-snippets`](./.vscode/cp-data-structures.code-snippets) | Data Structures | **26** | DSU (Standard, Rollback, Potential), Fenwick Trees (1D, Range-Add, 2D), Tries, Heaps, Lists, PBDS Ordered Set. |
-| [`cp-graphs.code-snippets`](./.vscode/cp-graphs.code-snippets) | Graph Theory & Trees | **26** | Dijkstra, 0-1 BFS, SPFA, Floyd-Warshall, Dinic Flow, MCMF, Hopcroft-Karp, Tarjan SCC, 2-SAT, HLD, LCA, MST. |
-| [`cp-math.code-snippets`](./.vscode/cp-math.code-snippets) | Math & Number Theory | **34** | Modular integer (`mint`), Miller-Rabin, Pollard's Rho, Linear Sieve, CRT, NTT, Matrix Ops, Linear Basis, Lucas. |
-| [`cp-searching-sorting.code-snippets`](./.vscode/cp-searching-sorting.code-snippets) | Search & Sorting | **15** | Predicate Binary Search (`first-true`), Ternary Search, Mo's Algorithm, Merge/Quick/Heap/Radix Sorts. |
-| [`cp-dp.code-snippets`](./.vscode/cp-dp.code-snippets) | Dynamic Programming | **12** | LIS, LCS, Knapsacks (0/1, Unbounded, Bitset), Digit DP, SOS DP, Divide & Conquer DP, Bitmask TSP. |
-| [`cp-strings.code-snippets`](./.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash ($2^{61}-1$), Aho-Corasick, Suffix Array + LCP, Booth's. |
-| [`cp-geometry.code-snippets`](./.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Andrew's Monotone Chain Convex Hull, Graham Scan, Shoelace Area, Point in Polygon. |
-| [`cp-backtracking.code-snippets`](./.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations/Permutations generator. |
-| **Total** | | **188** | |
+| [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, bit tricks. |
+| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees (Basic) | **11** | Iterative SegTree (Monoid), point set/update, range queries, Li Chao Tree. |
+| [`cp-lazy-segtree.code-snippets`](./.vscode/cp-lazy-segtree.code-snippets) | Lazy Segment Trees | **9** | Range Add/Set/Affine/Flip with Range Sum/Min/Max (ACL style). |
+| [`cp-persistent-segtree.code-snippets`](./.vscode/cp-persistent-segtree.code-snippets) | Persistent SegTree | **15** | Standard PST, Lazy PST Flip (Hashing), Lazy PST Range Add & Sum (Rollbacks). |
+| [`cp-merge-sort-tree.code-snippets`](./.vscode/cp-merge-sort-tree.code-snippets) | Merge Sort Trees | **19** | Static MST (order counts) & Point-Update Dynamic PBDS MST ($k$-th queries). |
+| [`cp-dsu-fenwick.code-snippets`](./.vscode/cp-dsu-fenwick.code-snippets) | DSU & Fenwick Trees | **7** | DSU (Standard, Rollback, Potential), Fenwick (1D, Range-Add, 2D), PBDS. |
+| [`cp-hash-linked-list.code-snippets`](./.vscode/cp-hash-linked-list.code-snippets) | Hash & Linked Lists | **6** | Separate Chaining, Anti-Hack custom hash, Singly/Doubly/Circular lists. |
+| [`cp-stack-queue.code-snippets`](./.vscode/cp-stack-queue.code-snippets) | Stacks & Queues | **7** | Array/List stacks, Circular queues, Deque, Monotonic stacks, Shunting-Yard. |
+| [`cp-advanced-trees.code-snippets`](./.vscode/cp-advanced-trees.code-snippets) | Trees & Heaps | **6** | BST, AVL Tree, Red-Black Tree, Binary Heap, Trie, Binary XOR Trie. |
+| [`cp-graph-paths.code-snippets`](./.vscode/cp-graph-paths.code-snippets) | Graph Traversal & Paths | **9** | BFS, Dijkstra, 0-1 BFS, Bellman-Ford, Floyd-Warshall, Johnson, Topo Sort. |
+| [`cp-graph-connectivity.code-snippets`](./.vscode/cp-graph-connectivity.code-snippets) | Graph Connectivity | **9** | Kruskal, Prim, Boruvka, Tarjan SCC, 2-SAT, Bridges, Kosaraju, BCC. |
+| [`cp-graph-flows.code-snippets`](./.vscode/cp-graph-flows.code-snippets) | Flows & Matching | **3** | Dinic Max Flow & Min Cut, Min-Cost Max-Flow (SPFA), Hopcroft-Karp. |
+| [`cp-graph-trees.code-snippets`](./.vscode/cp-graph-trees.code-snippets) | Tree Algorithms | **5** | Heavy-Light Decomposition (HLD), Centroid Decomposition, LCA, Euler Tour. |
+| [`cp-math-number-theory.code-snippets`](./.vscode/cp-math-number-theory.code-snippets) | Number Theory | **12** | Sieves, Miller-Rabin, Pollard's Rho, BSGS, Tonelli-Shanks, Lucas, Floor Sum. |
+| [`cp-math-combinatorics.code-snippets`](./.vscode/cp-math-combinatorics.code-snippets) | Combinatorics | **10** | Binomial coefficients, Catalan numbers, Permutations, Combinations table. |
+| [`cp-math-algebra.code-snippets`](./.vscode/cp-math-algebra.code-snippets) | Algebra & Modulo | **7** | Modular integer (`mint`), Matrix exponentiation, Linear Systems, Linear Basis, CRT. |
+| [`cp-math-polynomials.code-snippets`](./.vscode/cp-math-polynomials.code-snippets) | Polynomials & NTT | **5** | NTT, Polynomial Convolution, Inversion, Lagrange Interpolation, Bostan-Mori. |
+| [`cp-searching-sorting.code-snippets`](./.vscode/cp-searching-sorting.code-snippets) | Search & Sorting | **15** | Predicate Binary Search (`first-true`), Ternary Search, Mo's Algorithm, Sorts. |
+| [`cp-dp.code-snippets`](./.vscode/cp-dp.code-snippets) | Dynamic Programming | **12** | LIS, LCS, Knapsacks (0/1, Unbounded, Bitset), Digit DP, SOS DP, Bitmask TSP. |
+| [`cp-strings.code-snippets`](./.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash, Suffix Array + LCP. |
+| [`cp-geometry.code-snippets`](./.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Monotone Chain Convex Hull, Graham Scan, Polygon Area. |
+| [`cp-backtracking.code-snippets`](./.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations generator. |
+| **Total** | | **200** | **All files under 500 lines** |
 
 ---
 

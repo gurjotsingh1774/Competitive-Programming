@@ -1,0 +1,145 @@
+{
+  "Number Theoretic Transform (NTT)": {
+    "prefix": [
+      "cp-ntt"
+    ],
+    "body": [
+      "static_assert(mod == 998244353, \"poly.md needs MOD_VALUE 998244353 for NTT\");",
+      "",
+      "inline void ntt(vector<mint> &a, bool invert) {",
+      "    int n = a.size();",
+      "    for (int i = 1, j = 0; i < n; i++) {",
+      "        int bit = n >> 1;",
+      "        for (; j & bit; bit >>= 1) j ^= bit;",
+      "        j ^= bit;",
+      "        if (i < j) swap(a[i], a[j]);",
+      "    }",
+      "    for (int len = 2; len <= n; len <<= 1) {",
+      "        mint w(mint(3).power((mod - 1) / len));",
+      "        if (invert) w = w.inv();",
+      "        for (int i = 0; i < n; i += len) {",
+      "            mint cur = 1;",
+      "            for (int j = 0; j < len / 2; j++) {",
+      "                mint u = a[i + j], v = a[i + j + len / 2] * cur;",
+      "                a[i + j] = u + v, a[i + j + len / 2] = u - v;",
+      "                cur *= w;",
+      "            }",
+      "        }",
+      "    }",
+      "    if (invert) { mint ni = mint(n).inv(); for (auto &x : a) x *= ni; }",
+      "}"
+    ],
+    "description": "Computes the discrete Fourier transform over the finite field \\mathbb{Z}_{998244353}. Operates in-place on vectors of size equal to a power of two using radix-2 Cooley-Tukey bit reversal and butterfly operations. | Co..."
+  },
+  "Polynomial Convolution": {
+    "prefix": [
+      "cp-convolution",
+      "cp-poly-mult"
+    ],
+    "body": [
+      "inline vector<mint> convolution(vector<mint> a, vector<mint> b) {",
+      "    if (a.empty() || b.empty()) return {};",
+      "    size_t need = a.size() + b.size() - 1;",
+      "    if (min(a.size(), b.size()) <= 16) {",
+      "        vector<mint> r(need);",
+      "        for (size_t i = 0; i < a.size(); i++)",
+      "            for (size_t j = 0; j < b.size(); j++)",
+      "                r[i + j] += a[i] * b[j];",
+      "        return r;",
+      "    }",
+      "    size_t n = 1;",
+      "    while (n < need) n <<= 1;",
+      "    a.resize(n), b.resize(n);",
+      "    ntt(a, false), ntt(b, false);",
+      "    for (size_t i = 0; i < n; i++) a[i] *= b[i];",
+      "    ntt(a, true);",
+      "    a.resize(need);",
+      "    return a;",
+      "}"
+    ],
+    "description": "Multiplies two polynomials A(x) and B(x) modulo 998244353. Falls back to naive O(n \u00b7 m) schoolbook multiplication for small inputs (\u2264 16) to eliminate transform overhead. | Complexity: - **Time Complexity:** O((n + m)..."
+  },
+  "Polynomial Inverse Series": {
+    "prefix": [
+      "cp-poly-inverse",
+      "cp-poly-inv"
+    ],
+    "body": [
+      "inline vector<mint> poly_inverse(const vector<mint> &f, int n) {",
+      "    vector<mint> g = {f[0].inv()};",
+      "    for (int len = 1; len < n; len <<= 1) {",
+      "        vector<mint> fc(f.begin(), f.begin() + min((int)f.size(), 2 * len));",
+      "        auto t = convolution(fc, convolution(g, g));",
+      "        t.resize(2 * len);",
+      "        vector<mint> ng(2 * len);",
+      "        for (int i = 0; i < 2 * len; i++)",
+      "            ng[i] = (i < (int)g.size() ? g[i] * 2 : mint(0)) - t[i];",
+      "        g = ng;",
+      "    }",
+      "    g.resize(n);",
+      "    return g;",
+      "}"
+    ],
+    "description": "Computes the formal power series inverse g(x) such that f(x) \u00b7 g(x) \\equiv 1 \u00b1od{x^n} via Newton-Raphson iteration: g_{k+1} \\equiv g_k(2 - f \u00b7 g_k) \u00b1od{x^{2k}}. Requires f[0] \\ne 0. | Complexity: - **Time Complexity:*..."
+  },
+  "Lagrange Interpolation (Consecutive Points)": {
+    "prefix": [
+      "cp-lagrange",
+      "cp-lagrange-interpolation"
+    ],
+    "body": [
+      "inline mint lagrange_consecutive(const vector<mint> &y, mint x) {",
+      "    int n = y.size();",
+      "    if ((ll)x.val() < n) return y[x.val()];",
+      "    vector<mint> pfx(n + 1, 1), sfx(n + 1, 1), fi(n, 1);",
+      "    for (int i = 0; i < n; i++) pfx[i + 1] = pfx[i] * (x - i);",
+      "    for (int i = n - 1; i >= 0; i--) sfx[i] = sfx[i + 1] * (x - i);",
+      "    mint fprod = 1;",
+      "    for (int i = 1; i < n; i++) fprod *= i;",
+      "    fi[n - 1] = fprod.inv();",
+      "    for (int i = n - 1; i > 0; i--) fi[i - 1] = fi[i] * i;",
+      "    mint res = 0;",
+      "    for (int i = 0; i < n; i++) {",
+      "        mint term = y[i] * pfx[i] * sfx[i + 1] * fi[i] * fi[n - 1 - i];",
+      "        res += ((n - 1 - i) & 1) ? -term : term;",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Evaluates a degree d polynomial at an arbitrary query point x given its evaluations at consecutive integer coordinates y[i] = f(i) for i = 0 ... d. Uses prefix and suffix product tables to achieve O(d) linear time ins..."
+  },
+  "kth Term of Linear Recurrence (Bostan-Mori / Fiduccia)": {
+    "prefix": [
+      "cp-bostan-mori",
+      "cp-linear-recurrence"
+    ],
+    "body": [
+      "inline mint kth_term(const vector<mint> &c, const vector<mint> &a, ll k) {",
+      "    int d = c.size();",
+      "    if (k < (ll)a.size()) return a[k];",
+      "    auto mul = [&](const vector<mint> &p, const vector<mint> &q) {",
+      "        vector<mint> r(2 * d - 1);",
+      "        for (int i = 0; i < d; i++)",
+      "            for (int j = 0; j < d; j++)",
+      "                r[i + j] += p[i] * q[j];",
+      "        for (int i = 2 * d - 2; i >= d; i--)",
+      "            for (int j = 0; j < d; j++)",
+      "                r[i - 1 - j] += r[i] * c[j];",
+      "        r.resize(d);",
+      "        return r;",
+      "    };",
+      "    vector<mint> res(d), base(d);",
+      "    res[0] = 1;",
+      "    if (d == 1) base[0] = c[0]; else base[1] = 1;",
+      "    for (ll e = k; e; e >>= 1) {",
+      "        if (e & 1) res = mul(res, base);",
+      "        base = mul(base, base);",
+      "    }",
+      "    mint ans = 0;",
+      "    for (int i = 0; i < d; i++) ans += res[i] * a[i];",
+      "    return ans;",
+      "}"
+    ],
+    "description": "Finds the k-th term (0-indexed) of a linear recurrence a_n = \\sum_{i < d} c[i] \u00b7 a_{n-1-i} given initial values a_0 ... a_{d-1} without constructing or multiplying matrices. Operates by polynomial modulo multiplicatio..."
+  }
+}

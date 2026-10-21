@@ -1,0 +1,247 @@
+{
+  "Unweighted BFS Distances": {
+    "prefix": [
+      "cp-bfs",
+      "cp-bfs-graph"
+    ],
+    "body": [
+      "inline vector<int> bfs_dist(const vector<vector<int>> &g, int s) {",
+      "    vector<int> d(g.size(), -1);",
+      "    queue<int> q;",
+      "    d[s] = 0, q.push(s);",
+      "    while (!q.empty()) {",
+      "        int u = q.front();",
+      "        q.pop();",
+      "        for (int v : g[u])",
+      "            if (d[v] < 0) {",
+      "                d[v] = d[u] + 1;",
+      "                q.push(v);",
+      "            }",
+      "    }",
+      "    return d;",
+      "}"
+    ],
+    "description": "Calculates the shortest path distance from a single source s to all reachable vertices in an unweighted graph. Returns -1 for unreachable vertices. | Complexity: - **Time Complexity:** O(V + E) - **Space Complexity:**..."
+  },
+  "Topological Sort (Kahn\u2019s Algorithm)": {
+    "prefix": [
+      "cp-topo-sort",
+      "cp-kahn-algo"
+    ],
+    "body": [
+      "inline vector<int> topo_sort(const vector<vector<int>> &g) {",
+      "    int n = g.size();",
+      "    vector<int> indeg(n, 0), order;",
+      "    for (int u = 0; u < n; u++)",
+      "        for (int v : g[u]) indeg[v]++;",
+      "    queue<int> q;",
+      "    for (int i = 0; i < n; i++)",
+      "        if (!indeg[i]) q.push(i);",
+      "    while (!q.empty()) {",
+      "        int u = q.front();",
+      "        q.pop(), order.push_back(u);",
+      "        for (int v : g[u])",
+      "            if (--indeg[v] == 0) q.push(v);",
+      "    }",
+      "    return order;",
+      "}"
+    ],
+    "description": "Computes a linear topological ordering of a directed acyclic graph (DAG) by iteratively removing vertices with in-degree 0. If the output vector has size < n, the graph contains at least one directed cycle. | Complexi..."
+  },
+  "Bipartite 2-Coloring": {
+    "prefix": [
+      "cp-bipartite-check",
+      "cp-bipartite"
+    ],
+    "body": [
+      "inline bool bipartite_coloring(const vector<vector<int>> &g, vector<int> &color) {",
+      "    int n = g.size();",
+      "    color.assign(n, -1);",
+      "    for (int s = 0; s < n; s++) {",
+      "        if (color[s] >= 0) continue;",
+      "        color[s] = 0;",
+      "        vector<int> q = {s};",
+      "        for (size_t i = 0; i < q.size(); i++) {",
+      "            int u = q[i];",
+      "            for (int v : g[u]) {",
+      "                if (color[v] < 0) {",
+      "                    color[v] = color[u] ^ 1;",
+      "                    q.push_back(v);",
+      "                } else if (color[v] == color[u]) {",
+      "                    return false;",
+      "                }",
+      "            }",
+      "        }",
+      "    }",
+      "    return true;",
+      "}"
+    ],
+    "description": "Checks whether an undirected graph is bipartite (contains no odd cycles). Fills the color vector with values {0, 1}. Returns false if an odd-length cycle is detected. | Complexity: - **Time Complexity:** O(V + E) - **..."
+  },
+  "2D Grid BFS": {
+    "prefix": [
+      "cp-grid-bfs"
+    ],
+    "body": [
+      "inline vector<vector<int>> grid_bfs(const vector<string> &grid, int sr, int sc) {",
+      "    int n = grid.size(), m = n ? grid[0].size() : 0;",
+      "    vector<vector<int>> d(n, vector<int>(m, -1));",
+      "    if (grid[sr][sc] == '#') return d;",
+      "    queue<pair<int, int>> q;",
+      "    d[sr][sc] = 0, q.push({sr, sc});",
+      "    const int dr[] = {1, -1, 0, 0}, dc[] = {0, 0, 1, -1};",
+      "    while (!q.empty()) {",
+      "        auto [r, c] = q.front();",
+      "        q.pop();",
+      "        for (int k = 0; k < 4; k++) {",
+      "            int nr = r + dr[k], nc = c + dc[k];",
+      "            if (nr >= 0 && nr < n && nc >= 0 && nc < m && grid[nr][nc] != '#' && d[nr][nc] < 0) {",
+      "                d[nr][nc] = d[r][c] + 1;",
+      "                q.push({nr, nc});",
+      "            }",
+      "        }",
+      "    }",
+      "    return d;",
+      "}"
+    ],
+    "description": "Finds shortest grid distances from (sr, sc) to all reachable cells on a 2D character matrix where '#' represents obstacles. | Complexity: - **Time Complexity:** O(R \u00b7 C) - **Space Complexity:** O(R \u00b7 C)"
+  },
+  "Dijkstra\u2019s Algorithm (with Path Recovery)": {
+    "prefix": [
+      "cp-dijkstra"
+    ],
+    "body": [
+      "static const ll SP_INF = (ll)1e18;",
+      "typedef vector<vector<pair<int, ll>>> WGraph;",
+      "",
+      "inline vector<ll> dijkstra(const WGraph &g, int s, vector<int> *parent = nullptr) {",
+      "    vector<ll> d(g.size(), SP_INF);",
+      "    if (parent) parent->assign(g.size(), -1);",
+      "    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;",
+      "    d[s] = 0, pq.push({0, s});",
+      "    while (!pq.empty()) {",
+      "        auto [du, u] = pq.top();",
+      "        pq.pop();",
+      "        if (du > d[u]) continue;",
+      "        for (auto [v, w] : g[u])",
+      "            if (du + w < d[v]) {",
+      "                d[v] = du + w, pq.push({d[v], v});",
+      "                if (parent) (*parent)[v] = u;",
+      "            }",
+      "    }",
+      "    return d;",
+      "}",
+      "",
+      "// Reconstructs path from s to t (empty vector if t is unreachable).",
+      "inline vector<int> restore_path(const vector<int> &parent, int s, int t) {",
+      "    vector<int> p;",
+      "    for (int v = t; v != -1; v = parent[v]) {",
+      "        p.push_back(v);",
+      "        if (v == s) break;",
+      "    }",
+      "    reverse(p.begin(), p.end());",
+      "    return (p.empty() || p[0] != s) ? vector<int>() : p;",
+      "}"
+    ],
+    "description": "Finds single-source shortest paths on graphs with non-negative edge weights using a min-heap priority queue. If an optional pointer to a parent array is supplied, restore_path reconstructs the shortest path vertex by ..."
+  },
+  "0-1 BFS": {
+    "prefix": [
+      "cp-01-bfs"
+    ],
+    "body": [
+      "inline vector<ll> bfs01(const WGraph &g, int s) {",
+      "    vector<ll> d(g.size(), SP_INF);",
+      "    deque<int> dq;",
+      "    d[s] = 0, dq.push_back(s);",
+      "    while (!dq.empty()) {",
+      "        int u = dq.front();",
+      "        dq.pop_front();",
+      "        for (auto [v, w] : g[u])",
+      "            if (d[u] + w < d[v]) {",
+      "                d[v] = d[u] + w;",
+      "                if (w == 0) dq.push_front(v);",
+      "                else dq.push_back(v);",
+      "            }",
+      "    }",
+      "    return d;",
+      "}"
+    ],
+    "description": "When edge weights are restricted to {0, 1}, replaces the priority queue with a double-ended queue (std::deque). Pushing weight-0 edges to the front and weight-1 edges to the back ensures distance monotonicity without ..."
+  },
+  "Bellman-Ford (Negative Cycle Detection)": {
+    "prefix": [
+      "cp-bellman-ford"
+    ],
+    "body": [
+      "// Returns true if a negative-weight cycle is reachable from s.",
+      "inline bool bellman_ford(int n, const vector<array<ll, 3>> &edges, int s, vector<ll> &d) {",
+      "    d.assign(n, SP_INF), d[s] = 0;",
+      "    for (int it = 0; it < n; it++) {",
+      "        bool ch = false;",
+      "        for (auto [u, v, w] : edges)",
+      "            if (d[u] < SP_INF && d[u] + w < d[v]) {",
+      "                d[v] = d[u] + w, ch = true;",
+      "                if (it == n - 1) return true;",
+      "            }",
+      "        if (!ch) break;",
+      "    }",
+      "    return false;",
+      "}"
+    ],
+    "description": "Relaxes all edges V times. If any distance decreases during the V-th pass, a negative-weight cycle is reachable from source s. | Complexity: - **Time Complexity:** O(V \u00b7 E) - **Space Complexity:** O(V)"
+  },
+  "Floyd-Warshall (All-Pairs Shortest Paths)": {
+    "prefix": [
+      "cp-floyd-warshall"
+    ],
+    "body": [
+      "// In-place on an adjacency matrix (d[i][i] = 0, d[i][j] = SP_INF if no edge).",
+      "inline void floyd_warshall(vector<vector<ll>> &d) {",
+      "    int n = d.size();",
+      "    for (int k = 0; k < n; k++)",
+      "        for (int i = 0; i < n; i++)",
+      "            if (d[i][k] < SP_INF)",
+      "                for (int j = 0; j < n; j++)",
+      "                    if (d[k][j] < SP_INF)",
+      "                        d[i][j] = min(d[i][j], d[i][k] + d[k][j]);",
+      "}"
+    ],
+    "description": "Computes the shortest paths between all pairs of vertices on a dense weight matrix in O(V^3) time via dynamic programming. | Complexity: - **Time Complexity:** O(V^3) - **Space Complexity:** O(V^2) in-place"
+  },
+  "Johnson\u2019s Algorithm (All-Pairs on Sparse Graphs)": {
+    "prefix": [
+      "cp-johnson",
+      "cp-johnson-algo"
+    ],
+    "body": [
+      "vector<vector<ll>> johnson(int n, const vector<array<ll, 3>>& edges) {",
+      "    // 1. Add super-source connected to all vertices with weight 0",
+      "    vector<array<ll, 3>> extendedEdges = edges;",
+      "    for (int i = 0; i < n; i++) extendedEdges.push_back({n, i, 0});",
+      "",
+      "    vector<ll> h(n + 1);",
+      "    if (bellman_ford(n + 1, extendedEdges, n, h)) {",
+      "        return {}; // Negative cycle detected",
+      "    }",
+      "",
+      "    // 2. Build reweighted graph",
+      "    WGraph reweightedG(n);",
+      "    for (auto [u, v, w] : edges) {",
+      "        reweightedG[u].push_back({(int)v, w + h[u] - h[v]});",
+      "    }",
+      "",
+      "    // 3. Run Dijkstra from every node",
+      "    vector<vector<ll>> dist(n, vector<ll>(n, SP_INF));",
+      "    for (int u = 0; u < n; u++) {",
+      "        vector<ll> d = dijkstra(reweightedG, u);",
+      "        for (int v = 0; v < n; v++) {",
+      "            if (d[v] < SP_INF) dist[u][v] = d[v] - h[u] + h[v];",
+      "        }",
+      "    }",
+      "    return dist;",
+      "}"
+    ],
+    "description": "Computes all-pairs shortest paths on graphs with arbitrary (including negative) edge weights, outperforming Floyd-Warshall on sparse graphs (E \\ll V^2). 1. Adds a super-source connected to all vertices with weight 0 a..."
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "Binomial Coefficients (\\binom{n}{r}): Multiplicative Method": {
+    "prefix": [
+      "cp-ncr-mult",
+      "cp-ncr-direct"
+    ],
+    "body": [
+      "#include<iostream>",
+      "#include<algorithm>",
+      "",
+      "long long nCr(int n, int r) {",
+      "    if (r < 0 || r > n) return 0;",
+      "    if (r > n - r) r = n - r; // Symmetry optimization C(n, r) = C(n, n - r)",
+      "",
+      "    long long res = 1;",
+      "    for (int i = 0; i < r; ++i) {",
+      "        res = res * (n - i);",
+      "        res /= (i + 1);",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Computes \\binom{n}{r} = \\frac{n(n-1)\u00b7s(n-r+1)}{r!} iteratively without overflow up to 64-bit limits."
+  },
+  "Binomial Coefficients (\\binom{n}{r}): Pascal\u2019s Triangle DP": {
+    "prefix": [
+      "cp-ncr-pascal",
+      "cp-pascal-triangle"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<algorithm>",
+      "",
+      "std::vector<std::vector<long long>> buildPascalTriangle(int n) {",
+      "    std::vector<std::vector<long long>> C(n + 1, std::vector<long long>(n + 1, 0));",
+      "    for (int i = 0; i <= n; ++i) {",
+      "        C[i][0] = 1;",
+      "        for (int j = 1; j <= i; ++j) {",
+      "            C[i][j] = C[i - 1][j - 1] + C[i - 1][j];",
+      "        }",
+      "    }",
+      "    return C;",
+      "}"
+    ],
+    "description": "Computes binomial coefficients modulo m or for all pairs up to (n, r) using Pascal\u2019s identity: \\binom{n}{r} = \\binom{n-1}{r-1} + \\binom{n-1}{r}."
+  },
+  "Catalan Numbers (C_n): Dynamic Programming": {
+    "prefix": [
+      "cp-catalan-dp"
+    ],
+    "body": [
+      "#include<vector>",
+      "",
+      "long long catalanDP(int n) {",
+      "    std::vector<long long> C(n + 1, 0);",
+      "    C[0] = 1;",
+      "    if (n >= 1) C[1] = 1;",
+      "",
+      "    for (int i = 2; i <= n; ++i) {",
+      "        for (int j = 0; j < i; ++j) {",
+      "            C[i] += C[j] * C[i - 1 - j];",
+      "        }",
+      "    }",
+      "    return C[n];",
+      "}"
+    ],
+    "description": "Catalan Numbers (C_n): Dynamic Programming - Competitive programming template"
+  },
+  "Catalan Numbers (C_n): Direct Formula": {
+    "prefix": [
+      "cp-catalan-formula"
+    ],
+    "body": [
+      "long long catalanFormula(int n) {",
+      "    if (n <= 1) return 1;",
+      "    long long res = 1;",
+      "    // C_n = prod_{k=2}^n (n + k) / k",
+      "    for (int k = 2; k <= n; ++k) {",
+      "        res = (res * (n + k)) / k;",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Computes C_n = \\frac{1}{n+1}\\binom{2n}{n} using factorials or multiplicative binomial calculation."
+  },
+  "Combinations Generation: Combinations Without Repetition (Subsets with Duplicate Handling)": {
+    "prefix": [
+      "cp-combinations-unique",
+      "cp-comb-unique"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<algorithm>",
+      "",
+      "void generateCombinations(const std::vector<int>& arr, int start,",
+      "                          std::vector<int>& current,",
+      "                          std::vector<std::vector<int>>& result) {",
+      "    if (!current.empty()) {",
+      "        result.push_back(current);",
+      "    }",
+      "",
+      "    for (size_t i = start; i < arr.size(); ++i) {",
+      "        // Skip identical adjacent elements at the current depth to avoid duplicate combinations",
+      "        if (i > static_cast<size_t>(start) && arr[i] == arr[i - 1]) continue;",
+      "",
+      "        current.push_back(arr[i]);",
+      "        generateCombinations(arr, i + 1, current, result);",
+      "        current.pop_back(); // Backtrack",
+      "    }",
+      "}",
+      "",
+      "std::vector<std::vector<int>> getCombinations(std::vector<int> arr) {",
+      "    std::sort(arr.begin(), arr.end());",
+      "    std::vector<std::vector<int>> result;",
+      "    std::vector<int> current;",
+      "    generateCombinations(arr, 0, current, result);",
+      "    return result;",
+      "}"
+    ],
+    "description": "Generates all unique combinations of elements, properly skipping duplicates when the input array is sorted."
+  },
+  "Combinations Generation: Combinations With Repetition (Multiset Combinations)": {
+    "prefix": [
+      "cp-combinations-multiset",
+      "cp-comb-multiset"
+    ],
+    "body": [
+      "#include<vector>",
+      "",
+      "void generateCombinationsWithRepetition(const std::vector<int>& arr, int start, int k,",
+      "                                       std::vector<int>& current,",
+      "                                       std::vector<std::vector<int>>& result) {",
+      "    if (static_cast<int>(current.size()) == k) {",
+      "        result.push_back(current);",
+      "        return;",
+      "    }",
+      "",
+      "    for (size_t i = start; i < arr.size(); ++i) {",
+      "        current.push_back(arr[i]);",
+      "        // Recurse with `i` (not `i + 1`) to allow repeated usage of arr[i]",
+      "        generateCombinationsWithRepetition(arr, i, k, current, result);",
+      "        current.pop_back(); // Backtrack",
+      "    }",
+      "}"
+    ],
+    "description": "Generates combinations where each element can be selected multiple times."
+  },
+  "Permutations Generation: Backtracking Unique Permutations": {
+    "prefix": [
+      "cp-permutations-backtracking"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<algorithm>",
+      "#include<set>",
+      "",
+      "void backtrackPermutations(std::vector<int>& nums, int start, std::set<std::vector<int>>& results) {",
+      "    if (start == static_cast<int>(nums.size()) - 1) {",
+      "        results.insert(nums);",
+      "        return;",
+      "    }",
+      "",
+      "    for (size_t i = start; i < nums.size(); ++i) {",
+      "        if (i > static_cast<size_t>(start) && nums[i] == nums[start]) continue;",
+      "",
+      "        std::swap(nums[start], nums[i]);",
+      "        backtrackPermutations(nums, start + 1, results);",
+      "        std::swap(nums[start], nums[i]); // Backtrack",
+      "    }",
+      "}"
+    ],
+    "description": "Generates all unique permutations of a sequence containing duplicate values using a set or frequency sorting."
+  },
+  "Permutations Generation: Next Lexicographical Permutation": {
+    "prefix": [
+      "cp-next-permutation"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<algorithm>",
+      "",
+      "bool nextPermutation(std::vector<int>& nums) {",
+      "    int n = nums.size();",
+      "    int i = n - 2;",
+      "",
+      "    // Step 1: Find first ascending pair from the right",
+      "    while (i >= 0 && nums[i] >= nums[i + 1]) {",
+      "        --i;",
+      "    }",
+      "",
+      "    if (i < 0) {",
+      "        // Entire sequence is descending; reverse to wrap around to sorted order",
+      "        std::reverse(nums.begin(), nums.end());",
+      "        return false; // Last permutation reached",
+      "    }",
+      "",
+      "    // Step 2: Find rightmost element greater than nums[i]",
+      "    int j = n - 1;",
+      "    while (nums[j] <= nums[i]) {",
+      "        --j;",
+      "    }",
+      "",
+      "    // Step 3: Swap pivot with successor",
+      "    std::swap(nums[i], nums[j]);",
+      "",
+      "    // Step 4: Reverse suffix to minimize lexicographical order",
+      "    std::reverse(nums.begin() + i + 1, nums.end());",
+      "    return true;",
+      "}"
+    ],
+    "description": "In-place algorithm equivalent to std::next_permutation. Transforms the sequence into the lexicographically next greater permutation."
+  },
+  "Permutations Generation: Full Permutation Traversal (STL)": {
+    "prefix": [
+      "cp-permutations-stl"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<algorithm>",
+      "",
+      "std::vector<std::vector<int>> allPermutations(std::vector<int> nums) {",
+      "    std::sort(nums.begin(), nums.end());",
+      "    std::vector<std::vector<int>> results;",
+      "    do {",
+      "        results.push_back(nums);",
+      "    } while (std::next_permutation(nums.begin(), nums.end()));",
+      "    return results;",
+      "}"
+    ],
+    "description": "Generates all permutations in lexicographical order using std::next_permutation."
+  },
+  "Combinatorics Table (Comb)": {
+    "prefix": [
+      "cp-comb"
+    ],
+    "body": [
+      "struct Comb {",
+      "    vector<mint> f, fi;",
+      "    Comb(int n = 1) : f(1, 1), fi(1, 1) { grow(n); }",
+      "    void grow(int n) {",
+      "        int old = f.size();",
+      "        if (n < old) return;",
+      "        f.resize(n + 1), fi.resize(n + 1);",
+      "        for (int i = old; i <= n; i++) f[i] = f[i - 1] * i;",
+      "        fi[n] = f[n].inv();",
+      "        for (int i = n; i > old; i--) fi[i - 1] = fi[i] * i;",
+      "    }",
+      "    mint C(int n, int r) { if (n < 0 || r < 0 || r > n) return 0; grow(n); return f[n] * fi[r] * fi[n - r]; }",
+      "    mint P(int n, int r) { if (n < 0 || r < 0 || r > n) return 0; grow(n); return f[n] * fi[n - r]; }",
+      "    mint inv(int i) { grow(i); return fi[i] * f[i - 1]; }",
+      "    mint catalan(int n) { return C(2 * n, n) - C(2 * n, n + 1); }",
+      "    mint stars_and_bars(int n, int k) { return k == 0 ? mint(n == 0) : C(n + k - 1, k - 1); }",
+      "};"
+    ],
+    "description": "Maintains factorials and inverse factorials, dynamically resizing (grow(n)) when larger query values are encountered. - C(n, r): Computes \\binom{n}{r} \u00b1od p. - P(n, r): Computes \\frac{n!}{(n-r)!} \u00b1od p. - catalan(n): ..."
+  }
+}
