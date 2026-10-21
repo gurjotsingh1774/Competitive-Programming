@@ -962,85 +962,26 @@
       "              tree[node].begin());",
       "    }",
       "",
-      "    // Count elements <= x in a[l..r] (upper_bound)",
-      "    int count_leq(int l, int r, const T &x) const {",
+      "    // Generic query over range [l, r] (0-indexed inclusive).",
+      "    // Calls pred(tree[node]) on every canonical segment and sums the results.",
+      "    template <class F>",
+      "    int query(int l, int r, F pred) const {",
       "        if (l > r || l < 0 || r >= n) return 0;",
-      "        return query_leq(1, 0, n - 1, l, r, x);",
-      "    }",
-      "",
-      "    // Count elements < x in a[l..r] (lower_bound)",
-      "    int count_lt(int l, int r, const T &x) const {",
-      "        if (l > r || l < 0 || r >= n) return 0;",
-      "        return query_lt(1, 0, n - 1, l, r, x);",
-      "    }",
-      "",
-      "    // Count elements >= x in a[l..r] (end - lower_bound)",
-      "    int count_geq(int l, int r, const T &x) const {",
-      "        if (l > r || l < 0 || r >= n) return 0;",
-      "        return query_geq(1, 0, n - 1, l, r, x);",
-      "    }",
-      "",
-      "    // Count elements > x in a[l..r] (end - upper_bound)",
-      "    int count_gt(int l, int r, const T &x) const {",
-      "        if (l > r || l < 0 || r >= n) return 0;",
-      "        return query_gt(1, 0, n - 1, l, r, x);",
-      "    }",
-      "",
-      "    // Count elements in [x, y] in a[l..r] (upper_bound(y) - lower_bound(x))",
-      "    int count_range(int l, int r, const T &x, const T &y) const {",
-      "        if (l > r || l < 0 || r >= n || x > y) return 0;",
-      "        return query_range(1, 0, n - 1, l, r, x, y);",
+      "        return query_internal(1, 0, n - 1, l, r, pred);",
       "    }",
       "",
       "private:",
-      "    int query_leq(int node, int start, int end, int l, int r, const T &x) const {",
+      "    template <class F>",
+      "    int query_internal(int node, int start, int end, int l, int r, F pred) const {",
       "        if (end < l || r < start) return 0;",
-      "        if (l <= start && end <= r) {",
-      "            return (int)(upper_bound(tree[node].begin(), tree[node].end(), x) - tree[node].begin());",
-      "        }",
+      "        if (l <= start && end <= r) return pred(tree[node]);",
       "        int mid = start + (end - start) / 2;",
-      "        return query_leq(2 * node, start, mid, l, r, x) + query_leq(2 * node + 1, mid + 1, end, l, r, x);",
-      "    }",
-      "",
-      "    int query_lt(int node, int start, int end, int l, int r, const T &x) const {",
-      "        if (end < l || r < start) return 0;",
-      "        if (l <= start && end <= r) {",
-      "            return (int)(lower_bound(tree[node].begin(), tree[node].end(), x) - tree[node].begin());",
-      "        }",
-      "        int mid = start + (end - start) / 2;",
-      "        return query_lt(2 * node, start, mid, l, r, x) + query_lt(2 * node + 1, mid + 1, end, l, r, x);",
-      "    }",
-      "",
-      "    int query_geq(int node, int start, int end, int l, int r, const T &x) const {",
-      "        if (end < l || r < start) return 0;",
-      "        if (l <= start && end <= r) {",
-      "            return (int)(tree[node].end() - lower_bound(tree[node].begin(), tree[node].end(), x));",
-      "        }",
-      "        int mid = start + (end - start) / 2;",
-      "        return query_geq(2 * node, start, mid, l, r, x) + query_geq(2 * node + 1, mid + 1, end, l, r, x);",
-      "    }",
-      "",
-      "    int query_gt(int node, int start, int end, int l, int r, const T &x) const {",
-      "        if (end < l || r < start) return 0;",
-      "        if (l <= start && end <= r) {",
-      "            return (int)(tree[node].end() - upper_bound(tree[node].begin(), tree[node].end(), x));",
-      "        }",
-      "        int mid = start + (end - start) / 2;",
-      "        return query_gt(2 * node, start, mid, l, r, x) + query_gt(2 * node + 1, mid + 1, end, l, r, x);",
-      "    }",
-      "",
-      "    int query_range(int node, int start, int end, int l, int r, const T &x, const T &y) const {",
-      "        if (end < l || r < start) return 0;",
-      "        if (l <= start && end <= r) {",
-      "            return (int)(upper_bound(tree[node].begin(), tree[node].end(), y) -",
-      "                         lower_bound(tree[node].begin(), tree[node].end(), x));",
-      "        }",
-      "        int mid = start + (end - start) / 2;",
-      "        return query_range(2 * node, start, mid, l, r, x, y) + query_range(2 * node + 1, mid + 1, end, l, r, x, y);",
+      "        return query_internal(2 * node, start, mid, l, r, pred) +",
+      "               query_internal(2 * node + 1, mid + 1, end, l, r, pred);",
       "    }",
       "};"
     ],
-    "description": "Merge Sort Tree for static range order queries (<= x, < x, >= x, > x, and [x, y]) in O(log^2 n). 0-indexed [l, r] inclusive."
+    "description": "Merge Sort Tree (0-indexed [l, r] inclusive) with generic canonical-segment query in O(log^2 n)."
   },
   "MergeSortTree: Initialize": {
     "prefix": [
@@ -1056,7 +997,7 @@
       "cp-mst-leq"
     ],
     "body": [
-      "${1:mst}.count_leq(${2:l}, ${3:r}, ${4:x})"
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) { return upper_bound(${4:v}.begin(), ${4:v}.end(), ${5:x}) - ${4:v}.begin(); })"
     ],
     "description": "Count elements <= x in range [l, r] using upper_bound in O(log^2 n)."
   },
@@ -1065,7 +1006,7 @@
       "cp-mst-lt"
     ],
     "body": [
-      "${1:mst}.count_lt(${2:l}, ${3:r}, ${4:x})"
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) { return lower_bound(${4:v}.begin(), ${4:v}.end(), ${5:x}) - ${4:v}.begin(); })"
     ],
     "description": "Count elements < x in range [l, r] using lower_bound in O(log^2 n)."
   },
@@ -1074,7 +1015,7 @@
       "cp-mst-geq"
     ],
     "body": [
-      "${1:mst}.count_geq(${2:l}, ${3:r}, ${4:x})"
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) { return ${4:v}.end() - lower_bound(${4:v}.begin(), ${4:v}.end(), ${5:x}); })"
     ],
     "description": "Count elements >= x in range [l, r] using end - lower_bound in O(log^2 n)."
   },
@@ -1083,7 +1024,7 @@
       "cp-mst-gt"
     ],
     "body": [
-      "${1:mst}.count_gt(${2:l}, ${3:r}, ${4:x})"
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) { return ${4:v}.end() - upper_bound(${4:v}.begin(), ${4:v}.end(), ${5:x}); })"
     ],
     "description": "Count elements > x in range [l, r] using end - upper_bound in O(log^2 n)."
   },
@@ -1092,8 +1033,48 @@
       "cp-mst-range"
     ],
     "body": [
-      "${1:mst}.count_range(${2:l}, ${3:r}, ${4:x}, ${5:y})"
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) { return upper_bound(${4:v}.begin(), ${4:v}.end(), ${6:y}) - lower_bound(${4:v}.begin(), ${4:v}.end(), ${5:x}); })"
     ],
     "description": "Count elements in value range [x, y] within a[l..r] in O(log^2 n)."
+  },
+  "MergeSortTree: Custom Query": {
+    "prefix": [
+      "cp-mst-query"
+    ],
+    "body": [
+      "${1:mst}.query(${2:l}, ${3:r}, [&](const auto &${4:v}) {",
+      "    return ${0:/* custom segment count or condition */};",
+      "})"
+    ],
+    "description": "Custom query over canonical segment vectors covering [l, r] in MergeSortTree."
+  },
+  "MergeSortTree: Helper Functions": {
+    "prefix": [
+      "cp-mst-helpers",
+      "cp-mst-utils"
+    ],
+    "body": [
+      "template <class T>",
+      "int count_leq(const MergeSortTree<T> &mst, int l, int r, const T &x) {",
+      "    return mst.query(l, r, [&](const auto &v) { return upper_bound(v.begin(), v.end(), x) - v.begin(); });",
+      "}",
+      "template <class T>",
+      "int count_lt(const MergeSortTree<T> &mst, int l, int r, const T &x) {",
+      "    return mst.query(l, r, [&](const auto &v) { return lower_bound(v.begin(), v.end(), x) - v.begin(); });",
+      "}",
+      "template <class T>",
+      "int count_geq(const MergeSortTree<T> &mst, int l, int r, const T &x) {",
+      "    return mst.query(l, r, [&](const auto &v) { return v.end() - lower_bound(v.begin(), v.end(), x); });",
+      "}",
+      "template <class T>",
+      "int count_gt(const MergeSortTree<T> &mst, int l, int r, const T &x) {",
+      "    return mst.query(l, r, [&](const auto &v) { return v.end() - upper_bound(v.begin(), v.end(), x); });",
+      "}",
+      "template <class T>",
+      "int count_range(const MergeSortTree<T> &mst, int l, int r, const T &x, const T &y) {",
+      "    return mst.query(l, r, [&](const auto &v) { return upper_bound(v.begin(), v.end(), y) - lower_bound(v.begin(), v.end(), x); });",
+      "}"
+    ],
+    "description": "Standalone helper functions for MergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range)."
   }
 }

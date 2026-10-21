@@ -222,13 +222,15 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-lazy-pst-sum-query`: Query range sum of $[l, r]$ on historical version `ver`.
   - `cp-lazy-pst-sum-rollback`: Roll back to a previous version `ver`.
 - **Merge Sort Tree (Range Order Queries)**:
-  - `cp-merge-sort-tree`, `cp-mst`: Merge Sort Tree for static range order queries in $\mathcal{O}(\log^2 n)$ (0-indexed).
+  - `cp-merge-sort-tree`, `cp-mst`: Merge Sort Tree for static range order queries in $\mathcal{O}(\log^2 n)$ (0-indexed, lean struct with generic lambda query).
   - `cp-mst-init`: Instantiate MergeSortTree over vector `a`.
-  - `cp-mst-leq`: Count elements $\le x$ in range $[l, r]$ (upper_bound).
-  - `cp-mst-lt`: Count elements $< x$ in range $[l, r]$ (lower_bound).
-  - `cp-mst-geq`: Count elements $\ge x$ in range $[l, r]$ (end - lower_bound).
-  - `cp-mst-gt`: Count elements $> x$ in range $[l, r]$ (end - upper_bound).
+  - `cp-mst-leq`: Count elements $\le x$ in range $[l, r]$ (`upper_bound`).
+  - `cp-mst-lt`: Count elements $< x$ in range $[l, r]$ (`lower_bound`).
+  - `cp-mst-geq`: Count elements $\ge x$ in range $[l, r]$ (`end - lower_bound`).
+  - `cp-mst-gt`: Count elements $> x$ in range $[l, r]$ (`end - upper_bound`).
   - `cp-mst-range`: Count elements in value range $[x, y]$ within range $[l, r]$.
+  - `cp-mst-query`: Custom canonical segment query lambda over range $[l, r]$.
+  - `cp-mst-helpers`, `cp-mst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`).
 - `cp-lichao-tree`: Li Chao Segment Tree for dynamic line insertions and minimum/maximum evaluation at $x$.
 
 </details>
