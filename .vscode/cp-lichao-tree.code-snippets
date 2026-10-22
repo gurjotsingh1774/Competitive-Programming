@@ -1,0 +1,70 @@
+{
+  "Li Chao Tree": {
+    "prefix": [
+      "cp-li-chao",
+      "cp-lichao-tree"
+    ],
+    "body": [
+      "// LiChao: minimum of lines y = m*x + b at integer x in [lo, hi]. Insert O(log C), query O(log C).",
+      "// For maximum, insert (-m, -b) and negate the answer.",
+      "struct LiChao {",
+      "    struct Line {",
+      "        long long m, b;                 // Slope m and y-intercept b for y = m*x + b",
+      "        long long eval(long long x) const { return m * x + b; }  // Evaluates y at coordinate x",
+      "    };",
+      "    struct Node {",
+      "        Line line;                      // Best line currently dominating at midpoint",
+      "        int l = -1, r = -1;             // 0-indexed child node indices (-1 if null)",
+      "    };",
+      "    long long lo, hi;                   // 0-indexed coordinate domain bounds [lo, hi]",
+      "    vector<Node> t;                     // Dynamic node pool (0-indexed, root at index 0)",
+      "",
+      "    // Initializes Li Chao tree over domain [lo_, hi_]",
+      "    LiChao(long long lo_, long long hi_) : lo(lo_), hi(hi_) { t.push_back({{0, (long long)4e18}, -1, -1}); }",
+      "",
+      "    // Inserts line y = m*x + b into tree; O(log(hi - lo))",
+      "    void add_line(long long m, long long b) { insert(0, lo, hi, {m, b}); }",
+      "",
+      "    // Internal recursive line insertion",
+      "    void insert(int o, long long l, long long r, Line nw) {",
+      "        long long mid = l + (r - l) / 2;",
+      "        bool lef = nw.eval(l) < t[o].line.eval(l), md = nw.eval(mid) < t[o].line.eval(mid);",
+      "        if (md) swap(t[o].line, nw);",
+      "        if (l == r) return;",
+      "        if (lef != md) {",
+      "            if (t[o].l < 0) { t[o].l = t.size(); t.push_back({nw, -1, -1}); }",
+      "            else insert(t[o].l, l, mid, nw);",
+      "        } else {",
+      "            if (t[o].r < 0) { t[o].r = t.size(); t.push_back({nw, -1, -1}); }",
+      "            else insert(t[o].r, mid + 1, r, nw);",
+      "        }",
+      "    }",
+      "",
+      "    // Queries minimum y across all lines at integer coordinate x in [lo, hi]; O(log(hi - lo))",
+      "    long long query(long long x) const {",
+      "        int o = 0;",
+      "        long long l = lo, r = hi, res = LLONG_MAX;",
+      "        while (o >= 0) {",
+      "            res = min(res, t[o].line.eval(x));",
+      "            if (l == r) break;",
+      "            long long mid = l + (r - l) / 2;",
+      "            if (x <= mid) o = t[o].l, r = mid;",
+      "            else o = t[o].r, l = mid + 1;",
+      "        }",
+      "        return res;",
+      "    }",
+      "};"
+    ],
+    "description": "Li Chao Segment Tree for dynamic line insertion y = m*x + b and minimum/maximum evaluation at x in O(log C)."
+  },
+  "LiChao: Instantiate": {
+    "prefix": [
+      "cp-lichao-init"
+    ],
+    "body": [
+      "LiChao ${1:cht}(${2:0}, ${3:1000000});  // Coordinate domain [lo, hi]",
+      "// ${1:cht}.add_line(m, b); long long ans = ${1:cht}.query(x);"
+    ],
+    "description": "Instantiate Li Chao Tree over coordinate interval [lo, hi]."
+  }
+}

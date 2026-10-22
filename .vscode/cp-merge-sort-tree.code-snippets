@@ -37,6 +37,27 @@
       "        return query_internal(1, 0, n - 1, l, r, pred);",
       "    }",
       "",
+      "    // Range k-th smallest element (1-indexed k) in O(log^3 n).",
+      "    T kth(int l, int r, int k) const {",
+      "        if (l > r || k <= 0 || k > r - l + 1 || n == 0) return T();",
+      "        int low = 0, high = n - 1;",
+      "        T ans = tree[1][high];",
+      "        while (low <= high) {",
+      "            int mid = low + (high - low) / 2;",
+      "            T val = tree[1][mid];",
+      "            int cnt = query(l, r, [&](const auto &v) {",
+      "                return (int)(upper_bound(v.begin(), v.end(), val) - v.begin());",
+      "            });",
+      "            if (cnt >= k) {",
+      "                ans = val;",
+      "                high = mid - 1;",
+      "            } else {",
+      "                low = mid + 1;",
+      "            }",
+      "        }",
+      "        return ans;",
+      "    }",
+      "",
       "private:",
       "    template <class F>",
       "    int query_internal(int node, int start, int end, int l, int r, F pred) const {",
@@ -140,9 +161,22 @@
       "template <class T>",
       "int count_range(const MergeSortTree<T> &mst, int l, int r, const T &x, const T &y) {",
       "    return mst.query(l, r, [&](const auto &v) { return upper_bound(v.begin(), v.end(), y) - lower_bound(v.begin(), v.end(), x); });",
+      "}",
+      "template <class T>",
+      "T kth(const MergeSortTree<T> &mst, int l, int r, int k) {",
+      "    return mst.kth(l, r, k);",
       "}"
     ],
-    "description": "Standalone helper functions for MergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range)."
+    "description": "Standalone helper functions for MergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range, kth)."
+  },
+  "MergeSortTree: K-th Element": {
+    "prefix": [
+      "cp-mst-kth"
+    ],
+    "body": [
+      "${1:mst}.kth(${2:l}, ${3:r}, ${4:k})"
+    ],
+    "description": "Range k-th smallest element (1-indexed k) in range [l, r] in O(log^3 n)."
   },
   "Point Update Merge Sort Tree": {
     "prefix": [
@@ -193,6 +227,28 @@
       "    int query(int l, int r, F pred) const {",
       "        if (l > r || l < 0 || r >= n) return 0;",
       "        return query_internal(1, 0, n - 1, l, r, pred);",
+      "    }",
+      "",
+      "    // Range k-th smallest element (1-indexed k) in O(log^3 n).",
+      "    // Binary searches rank in [0, n-1] via root find_by_order, and counts <= candidate via segment order_of_key.",
+      "    T kth(int l, int r, int k) const {",
+      "        if (l > r || k <= 0 || k > r - l + 1 || n == 0) return T();",
+      "        int low = 0, high = n - 1;",
+      "        T ans = a[l];",
+      "        while (low <= high) {",
+      "            int mid = low + (high - low) / 2;",
+      "            T val = t[1].find_by_order(mid)->first;",
+      "            int cnt = query(l, r, [&](const auto &s) {",
+      "                return (int)s.order_of_key({val, numeric_limits<int>::max()});",
+      "            });",
+      "            if (cnt >= k) {",
+      "                ans = val;",
+      "                high = mid - 1;",
+      "            } else {",
+      "                low = mid + 1;",
+      "            }",
+      "        }",
+      "        return ans;",
       "    }",
       "",
       "private:",
@@ -285,24 +341,9 @@
       "cp-pmst-kth"
     ],
     "body": [
-      "[&](${1:long long} low, ${1:long long} high) {",
-      "    ${1:long long} ans = high;",
-      "    while (low <= high) {",
-      "        ${1:long long} mid = low + (high - low) / 2;",
-      "        int cnt = ${2:mst}.query(${3:l}, ${4:r}, [&](const auto &s) {",
-      "            return (int)s.order_of_key({mid, numeric_limits<int>::max()});",
-      "        });",
-      "        if (cnt >= ${5:k}) {",
-      "            ans = mid;",
-      "            high = mid - 1;",
-      "        } else {",
-      "            low = mid + 1;",
-      "        }",
-      "    }",
-      "    return ans;",
-      "}(${6:-1e9}, ${7:1e9})"
+      "${1:mst}.kth(${2:l}, ${3:r}, ${4:k})"
     ],
-    "description": "Binary search for k-th smallest element (1-indexed k) in range [l, r] in O(log^3 n)."
+    "description": "Range k-th smallest element (1-indexed k) in range [l, r] in O(log^3 n) using root find_by_order & order_of_key."
   },
   "PointUpdateMergeSortTree: Helper Functions": {
     "prefix": [
@@ -334,14 +375,8 @@
       "    return mst.query(l, r, [&](const auto &s) { return (int)s.order_of_key({(T)y, numeric_limits<int>::max()}) - (int)s.order_of_key({(T)x, numeric_limits<int>::min()}); });",
       "}",
       "template <class T>",
-      "T kth(const PointUpdateMergeSortTree<T> &mst, int l, int r, int k, T min_val = (T)-1e9, T max_val = (T)1e9) {",
-      "    T low = min_val, high = max_val, ans = max_val;",
-      "    while (low <= high) {",
-      "        T mid = low + (high - low) / 2;",
-      "        if (count_leq(mst, l, r, mid) >= k) { ans = mid; high = mid - 1; }",
-      "        else { low = mid + 1; }",
-      "    }",
-      "    return ans;",
+      "T kth(const PointUpdateMergeSortTree<T> &mst, int l, int r, int k) {",
+      "    return mst.kth(l, r, k);",
       "}"
     ],
     "description": "Standalone helper functions for PointUpdateMergeSortTree (count_leq, count_lt, count_geq, count_gt, count_range, kth)."

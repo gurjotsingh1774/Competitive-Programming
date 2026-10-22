@@ -1,5 +1,5 @@
 {
-  "Stack Implementations: Dynamic Array-based Stack": {
+  "Dynamic Array-based Stack": {
     "prefix": [
       "cp-array-stack",
       "cp-stack-array"
@@ -11,144 +11,35 @@
       "template <typename T>",
       "class ArrayStack {",
       "private:",
-      "    std::vector<T> data;",
+      "    std::vector<T> data;  // Contiguous dynamic array storage",
       "",
       "public:",
-      "    void push(T val) {",
-      "        data.push_back(val);",
-      "    }",
+      "    // Pushes value onto top of stack; amortized O(1)",
+      "    void push(T val) { data.push_back(val); }",
       "",
+      "    // Pops value from top of stack; throws if empty; O(1)",
       "    void pop() {",
       "        if (data.empty()) throw std::out_of_range(\"Stack underflow\");",
       "        data.pop_back();",
       "    }",
       "",
+      "    // Returns reference to top element; throws if empty; O(1)",
       "    T top() const {",
       "        if (data.empty()) throw std::out_of_range(\"Stack is empty\");",
       "        return data.back();",
       "    }",
       "",
+      "    // Checks if stack contains 0 elements",
       "    bool empty() const { return data.empty(); }",
+      "",
+      "    // Number of elements in stack",
       "    size_t size() const { return data.size(); }",
+      "",
+      "    // Clears all elements",
       "    void clear() { data.clear(); }",
       "};"
     ],
-    "description": "Stack Implementations: Dynamic Array-based Stack - Competitive programming template"
-  },
-  "Queue & Deque Implementations: Circular Buffer Queue": {
-    "prefix": [
-      "cp-circular-queue",
-      "cp-queue-circular"
-    ],
-    "body": [
-      "#include<vector>",
-      "#include<stdexcept>",
-      "",
-      "template <typename T>",
-      "class CircularQueue {",
-      "private:",
-      "    std::vector<T> buffer;",
-      "    int head = 0;",
-      "    int tail = 0;",
-      "    int count = 0;",
-      "    int capacity;",
-      "",
-      "public:",
-      "    CircularQueue(int cap) : buffer(cap), capacity(cap) {}",
-      "",
-      "    bool push(T val) {",
-      "        if (count == capacity) return false; // Full",
-      "        buffer[tail] = val;",
-      "        tail = (tail + 1) % capacity;",
-      "        count++;",
-      "        return true;",
-      "    }",
-      "",
-      "    bool pop() {",
-      "        if (count == 0) return false; // Empty",
-      "        head = (head + 1) % capacity;",
-      "        count--;",
-      "        return true;",
-      "    }",
-      "",
-      "    T front() const {",
-      "        if (count == 0) throw std::out_of_range(\"Queue is empty\");",
-      "        return buffer[head];",
-      "    }",
-      "",
-      "    bool empty() const { return count == 0; }",
-      "    bool full() const { return count == capacity; }",
-      "    int size() const { return count; }",
-      "};"
-    ],
-    "description": "A FIFO (First-In-First-Out) ring buffer avoiding dynamic memory reallocation during operations."
-  },
-  "Queue & Deque Implementations: Double-Ended Queue (Circular Array Deque)": {
-    "prefix": [
-      "cp-array-deque",
-      "cp-deque-circular"
-    ],
-    "body": [
-      "#include<vector>",
-      "#include<stdexcept>",
-      "",
-      "template <typename T>",
-      "class ArrayDeque {",
-      "private:",
-      "    std::vector<T> buf;",
-      "    int front_idx = 0;",
-      "    int rear_idx = 0;",
-      "    int count = 0;",
-      "    int cap;",
-      "",
-      "public:",
-      "    ArrayDeque(int capacity) : buf(capacity), cap(capacity), rear_idx(capacity - 1) {}",
-      "",
-      "    bool push_front(T val) {",
-      "        if (count == cap) return false;",
-      "        front_idx = (front_idx - 1 + cap) % cap;",
-      "        buf[front_idx] = val;",
-      "        count++;",
-      "        return true;",
-      "    }",
-      "",
-      "    bool push_back(T val) {",
-      "        if (count == cap) return false;",
-      "        rear_idx = (rear_idx + 1) % cap;",
-      "        buf[rear_idx] = val;",
-      "        count++;",
-      "        return true;",
-      "    }",
-      "",
-      "    bool pop_front() {",
-      "        if (count == 0) return false;",
-      "        front_idx = (front_idx + 1) % cap;",
-      "        count--;",
-      "        return true;",
-      "    }",
-      "",
-      "    bool pop_back() {",
-      "        if (count == 0) return false;",
-      "        rear_idx = (rear_idx - 1 + cap) % cap;",
-      "        count--;",
-      "        return true;",
-      "    }",
-      "",
-      "    T front() const {",
-      "        if (count == 0) throw std::out_of_range(\"Deque empty\");",
-      "        return buf[front_idx];",
-      "    }",
-      "",
-      "    T back() const {",
-      "        if (count == 0) throw std::out_of_range(\"Deque empty\");",
-      "        return buf[rear_idx];",
-      "    }",
-      "",
-      "    bool empty() const { return count == 0; }",
-      "    int size() const { return count; }",
-      "};"
-    ],
-    "description": "Allows fast O(1) insertion and deletion at both ends."
+    "description": "Dynamic array-based LIFO stack with amortized O(1) operations."
   },
   "Monotonic Stack (Nearest Elements)": {
     "prefix": [
@@ -156,10 +47,10 @@
       "cp-nearest-elements"
     ],
     "body": [
-      "// nearest_right: first j > i with cmp(a[j], a[i]) (n if none).",
+      "// nearest_right: first 0-indexed index j > i with cmp(a[j], a[i]) (n if none exists); O(n)",
       "template <class T, class Cmp> vector<int> nearest_right(const vector<T> &a, Cmp cmp) {",
       "    int n = a.size();",
-      "    vector<int> res(n, n), st;",
+      "    vector<int> res(n, n), st;  // 0-indexed result array",
       "    for (int i = 0; i < n; i++) {",
       "        while (!st.empty() && cmp(a[i], a[st.back()])) {",
       "            res[st.back()] = i;",
@@ -170,10 +61,10 @@
       "    return res;",
       "}",
       "",
-      "// nearest_left: last j < i with cmp(a[j], a[i]) (-1 if none).",
+      "// nearest_left: last 0-indexed index j < i with cmp(a[j], a[i]) (-1 if none exists); O(n)",
       "template <class T, class Cmp> vector<int> nearest_left(const vector<T> &a, Cmp cmp) {",
       "    int n = a.size();",
-      "    vector<int> res(n, -1), st;",
+      "    vector<int> res(n, -1), st; // 0-indexed result array",
       "    for (int i = n - 1; i >= 0; i--) {",
       "        while (!st.empty() && cmp(a[i], a[st.back()])) {",
       "            res[st.back()] = i;",
@@ -184,9 +75,9 @@
       "    return res;",
       "}"
     ],
-    "description": "Maintains elements in a stack in strictly monotonic order. Computes the nearest greater/smaller element to the left and right of every index in linear time. - **nearest_right(a, cmp)**: First j > i with cmp(a[j], a[i]..."
+    "description": "Computes the nearest greater/smaller element to the left and right of every index in O(n) (0-indexed)."
   },
-  "Monotonic Stack": {
+  "Monotonic Stack (Next Greater/Smaller Values)": {
     "prefix": [
       "cp-monotonic-stack"
     ],
@@ -195,11 +86,11 @@
       "#include<stack>",
       "",
       "struct MonotonicStack {",
-      "    // Finds the next greater element for each index; returns -1 if none exists",
+      "    // Finds next greater value for each 0-indexed position (returns -1 if none); O(n)",
       "    static std::vector<int> nextGreaterElement(const std::vector<int>& nums) {",
       "        int n = nums.size();",
-      "        std::vector<int> result(n, -1);",
-      "        std::stack<int> s; // Stores indices",
+      "        std::vector<int> result(n, -1);  // 0-indexed result",
+      "        std::stack<int> s;               // Stores 0-indexed indices",
       "",
       "        for (int i = 0; i < n; ++i) {",
       "            while (!s.empty() && nums[s.top()] < nums[i]) {",
@@ -211,10 +102,10 @@
       "        return result;",
       "    }",
       "",
-      "    // Finds the next smaller element for each index; returns -1 if none exists",
+      "    // Finds next smaller value for each 0-indexed position (returns -1 if none); O(n)",
       "    static std::vector<int> nextSmallerElement(const std::vector<int>& nums) {",
       "        int n = nums.size();",
-      "        std::vector<int> result(n, -1);",
+      "        std::vector<int> result(n, -1);  // 0-indexed result",
       "        std::stack<int> s;",
       "",
       "        for (int i = 0; i < n; ++i) {",
@@ -228,7 +119,7 @@
       "    }",
       "};"
     ],
-    "description": "Maintains elements in monotonic (strictly increasing or decreasing) order. Essential for computing the Next Greater Element (NGE), Next Smaller Element (NSE), Previous Greater Element (PGE), and solving largest rectan..."
+    "description": "Next Greater Element (NGE) and Next Smaller Element (NSE) in O(n) using monotonic stack."
   },
   "Expression Conversion: Infix to Postfix (Shunting-Yard)": {
     "prefix": [
@@ -240,6 +131,7 @@
       "#include<stack>",
       "#include<cctype>",
       "",
+      "// Operator precedence: higher value = higher precedence",
       "int getPrecedence(char op) {",
       "    if (op == '^') return 3;",
       "    if (op == '*' || op == '/' || op == '%') return 2;",
@@ -247,17 +139,16 @@
       "    return 0;",
       "}",
       "",
-      "bool isRightAssociative(char op) {",
-      "    return op == '^';",
-      "}",
+      "// Operator associativity (true for right-associative power operator ^)",
+      "bool isRightAssociative(char op) { return op == '^'; }",
       "",
+      "// Converts standard infix expression to Reverse Polish Notation (RPN / postfix); O(n)",
       "std::string infixToPostfix(const std::string& expr) {",
       "    std::stack<char> s;",
       "    std::string postfix;",
       "",
       "    for (char c : expr) {",
       "        if (std::isspace(c)) continue;",
-      "",
       "        if (std::isalnum(c)) {",
       "            postfix += c;",
       "        } else if (c == '(') {",
@@ -269,7 +160,6 @@
       "            }",
       "            if (!s.empty()) s.pop(); // Pop '('",
       "        } else {",
-      "            // Operator",
       "            while (!s.empty() && s.top() != '(' &&",
       "                   (getPrecedence(s.top()) > getPrecedence(c) ||",
       "                    (getPrecedence(s.top()) == getPrecedence(c) && !isRightAssociative(c)))) {",
@@ -287,7 +177,7 @@
       "    return postfix;",
       "}"
     ],
-    "description": "Converts standard infix arithmetic expressions (e.g. (A + B) * C) to postfix Reverse Polish Notation (RPN, e.g. A B + C *) using Dijkstra\u2019s Shunting-yard algorithm with operator precedence and associativity. | Complex..."
+    "description": "Converts standard infix arithmetic expressions to postfix Reverse Polish Notation using Shunting-yard algorithm."
   },
   "Expression Evaluation: Postfix & Prefix": {
     "prefix": [
@@ -302,6 +192,7 @@
       "#include<cmath>",
       "#include<stdexcept>",
       "",
+      "// Evaluates single binary operation",
       "long long applyOp(char op, long long a, long long b) {",
       "    switch (op) {",
       "        case '+': return a + b;",
@@ -321,6 +212,7 @@
       "    }",
       "}",
       "",
+      "// Evaluates space-separated postfix expression tokens (e.g. \"3 4 + 2 *\"); O(n)",
       "long long evaluatePostfix(const std::string& expr) {",
       "    std::stack<long long> s;",
       "    std::stringstream ss(expr);",
@@ -341,6 +233,6 @@
       "    return s.top();",
       "}"
     ],
-    "description": "- **Postfix Evaluation**: Reads tokens left-to-right, pushing operands onto the stack. When an operator is encountered, pops two operands, applies the operator, and pushes the result. - **Prefix Evaluation**: Reads to..."
+    "description": "Evaluates postfix arithmetic expressions in O(n) time using an evaluation stack."
   }
 }

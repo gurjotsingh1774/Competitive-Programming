@@ -1,0 +1,138 @@
+{
+  "Binary Search on Monotone Predicates": {
+    "prefix": [
+      "cp-binary-search-monotone",
+      "cp-binsearch-pred",
+      "cp-first-true"
+    ],
+    "body": [
+      "// first_true: finds smallest 0-indexed value x in [lo, hi] with pred(x) == true (pattern: F...F T...T); returns hi + 1 if none; O(log(hi - lo))",
+      "template <class P> long long first_true(long long lo, long long hi, P pred) {",
+      "    long long l = lo, r = hi + 1;",
+      "    while (l < r) {",
+      "        long long m = l + (r - l) / 2;",
+      "        if (pred(m)) r = m;",
+      "        else l = m + 1;",
+      "    }",
+      "    return l;",
+      "}",
+      "",
+      "// last_true: finds largest 0-indexed value x in [lo, hi] with pred(x) == true (pattern: T...T F...F); returns lo - 1 if none; O(log(hi - lo))",
+      "template <class P> long long last_true(long long lo, long long hi, P pred) {",
+      "    long long l = lo - 1, r = hi;",
+      "    while (l < r) {",
+      "        long long m = l + (r - l + 1) / 2;",
+      "        if (pred(m)) l = m;",
+      "        else r = m - 1;",
+      "    }",
+      "    return l;",
+      "}"
+    ],
+    "description": "Binary search on monotonic predicates over [lo, hi] finding transition boundary without off-by-one errors."
+  },
+  "Ternary Search": {
+    "prefix": [
+      "cp-ternary-search"
+    ],
+    "body": [
+      "// Ternary search for integer minimum of strictly unimodal function f over [lo, hi]; O(log(hi - lo))",
+      "template <class F> long long ternary_min_int(long long lo, long long hi, F f) {",
+      "    while (hi - lo > 2) {",
+      "        long long m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;",
+      "        if (f(m1) <= f(m2)) hi = m2;",
+      "        else lo = m1;",
+      "    }",
+      "    long long best = lo;",
+      "    for (long long x = lo + 1; x <= hi; x++)",
+      "        if (f(x) < f(best)) best = x;",
+      "    return best;",
+      "}",
+      "",
+      "// Ternary search for floating-point minimum of unimodal function f over [lo, hi]; O(iters)",
+      "template <class F> double ternary_min_real(double lo, double hi, F f, int iters = 100) {",
+      "    for (int i = 0; i < iters; i++) {",
+      "        double m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;",
+      "        if (f(m1) < f(m2)) hi = m2;",
+      "        else lo = m1;",
+      "    }",
+      "    return (lo + hi) / 2;",
+      "}"
+    ],
+    "description": "Ternary Search to locate global minimum/maximum of unimodal functions on integer or real intervals."
+  },
+  "Linear Search": {
+    "prefix": [
+      "cp-linear-search"
+    ],
+    "body": [
+      "// Returns 0-indexed index of target in arr; returns -1 if not found; O(n)",
+      "int linearSearch(const vector<int>& arr, int target) {",
+      "    for (size_t i = 0; i < arr.size(); i++) {",
+      "        if (arr[i] == target) return (int)i;  // Match found at 0-indexed index i",
+      "    }",
+      "    return -1;                                // Not found",
+      "}"
+    ],
+    "description": "Sequential search returning 0-indexed position of target (or -1)."
+  },
+  "Binary Search": {
+    "prefix": [
+      "cp-binary-search"
+    ],
+    "body": [
+      "// Returns 0-indexed index of target in sorted arr; returns -1 if not found; O(log n)",
+      "int binarySearch(const vector<int>& arr, int target) {",
+      "    int low = 0, high = (int)arr.size() - 1;  // 0-indexed bounds",
+      "    while (low <= high) {",
+      "        int mid = low + (high - low) / 2;     // 0-indexed midpoint",
+      "        if (arr[mid] == target) return mid;",
+      "        if (arr[mid] < target) low = mid + 1;",
+      "        else high = mid - 1;",
+      "    }",
+      "    return -1;                                // Not found",
+      "}"
+    ],
+    "description": "Classic binary search on sorted array returning 0-indexed position (or -1)."
+  },
+  "Fibonacci Search": {
+    "prefix": [
+      "cp-fibonacci-search",
+      "cp-fib-search"
+    ],
+    "body": [
+      "// Fibonacci search on sorted array arr; returns 0-indexed index of x (or -1 if none); O(log n)",
+      "int fibonacciSearch(const vector<int>& arr, int x) {",
+      "    int n = arr.size();",
+      "    int fib2 = 0;           // (m-2)'th Fibonacci number",
+      "    int fib1 = 1;           // (m-1)'th Fibonacci number",
+      "    int fibM = fib2 + fib1; // m'th Fibonacci number",
+      "",
+      "    while (fibM < n) {",
+      "        fib2 = fib1;",
+      "        fib1 = fibM;",
+      "        fibM = fib2 + fib1;",
+      "    }",
+      "",
+      "    int offset = -1;  // 0-indexed eliminated prefix bound",
+      "    while (fibM > 1) {",
+      "        int i = min(offset + fib2, n - 1);  // 0-indexed candidate",
+      "        if (arr[i] < x) {",
+      "            fibM = fib1;",
+      "            fib1 = fib2;",
+      "            fib2 = fibM - fib1;",
+      "            offset = i;",
+      "        } else if (arr[i] > x) {",
+      "            fibM = fib2;",
+      "            fib1 = fib1 - fib2;",
+      "            fib2 = fibM - fib1;",
+      "        } else {",
+      "            return i;  // Match found at 0-indexed position i",
+      "        }",
+      "    }",
+      "    if (fib1 && offset + 1 < n && arr[offset + 1] == x) return offset + 1;",
+      "    return -1;",
+      "}"
+    ],
+    "description": "Comparison-based search using Fibonacci numbers (addition/subtraction only) returning 0-indexed position."
+  }
+}

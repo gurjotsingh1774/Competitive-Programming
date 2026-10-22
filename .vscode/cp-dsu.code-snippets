@@ -1,0 +1,154 @@
+{
+  "Standard DSU": {
+    "prefix": [
+      "cp-dsu"
+    ],
+    "body": [
+      "struct DSU {",
+      "    vector<int> p;  // Parent pointers: p[x] is parent of node x (0-indexed, 0 <= x < n)",
+      "    vector<int> s;  // Component sizes: s[x] is size of tree rooted at x (0-indexed)",
+      "    int comps;      // Total number of disjoint connected components",
+      "",
+      "    // Initializes DSU for n elements, 0-indexed (0 to n-1)",
+      "    DSU(int n = 0) : p(n), s(n, 1), comps(n) { iota(p.begin(), p.end(), 0); }",
+      "",
+      "    // Finds representative root of 0-indexed element x with two-pass path compression (O(alpha(n)))",
+      "    int find(int x) { while (p[x] != x) x = p[x] = p[p[x]]; return x; }",
+      "",
+      "    // Unites components containing 0-indexed elements a and b by size; returns false if already united",
+      "    bool unite(int a, int b) {",
+      "        a = find(a), b = find(b);",
+      "        if (a == b) return false;",
+      "        if (s[a] < s[b]) swap(a, b);",
+      "        p[b] = a, s[a] += s[b], comps--;",
+      "        return true;",
+      "    }",
+      "",
+      "    // Checks if 0-indexed elements a and b belong to the same component",
+      "    bool same(int a, int b) { return find(a) == find(b); }",
+      "",
+      "    // Returns size of component containing 0-indexed element x",
+      "    int size(int x) { return s[find(x)]; }",
+      "};"
+    ],
+    "description": "Maintains disjoint sets of elements with union-by-size and path compression (0-indexed: 0 to n-1). Ideal for Kruskal's MST and static connectivity checks. Tracks total connected components via comps."
+  },
+  "Rollback DSU (Undoable)": {
+    "prefix": [
+      "cp-rollback-dsu"
+    ],
+    "body": [
+      "struct RollbackDSU {",
+      "    vector<int> p;                 // Parent pointers: p[x] is parent of node x (0-indexed, 0 <= x < n)",
+      "    vector<int> s;                 // Component sizes: s[x] is size of tree rooted at x (0-indexed)",
+      "    vector<pair<int, int>> hist;   // History log: (child root, parent root) for rollbacks",
+      "    int comps;                     // Total number of disjoint connected components",
+      "",
+      "    // Initializes RollbackDSU for n elements, 0-indexed (0 to n-1)",
+      "    RollbackDSU(int n = 0) : p(n), s(n, 1), comps(n) { iota(p.begin(), p.end(), 0); }",
+      "",
+      "    // Finds representative root of 0-indexed element x without path compression (O(log n))",
+      "    int find(int x) const { while (p[x] != x) x = p[x]; return x; }",
+      "",
+      "    // Unites components containing 0-indexed elements a and b by size; records modification in history",
+      "    bool unite(int a, int b) {",
+      "        a = find(a), b = find(b);",
+      "        if (a == b) { hist.push_back({-1, -1}); return false; }",
+      "        if (s[a] < s[b]) swap(a, b);",
+      "        p[b] = a, s[a] += s[b], comps--;",
+      "        hist.push_back({b, a});",
+      "        return true;",
+      "    }",
+      "",
+      "    // Checks if 0-indexed elements a and b belong to the same component",
+      "    bool same(int a, int b) const { return find(a) == find(b); }",
+      "",
+      "    // Returns size of component containing 0-indexed element x",
+      "    int size(int x) const { return s[find(x)]; }",
+      "",
+      "    // Returns current history snapshot ID",
+      "    int snapshot() const { return hist.size(); }",
+      "",
+      "    // Rolls back DSU modifications up to previous snapshot ID snap",
+      "    void rollback(int snap) {",
+      "        while ((int)hist.size() > snap) {",
+      "            auto [b, a] = hist.back();",
+      "            hist.pop_back();",
+      "            if (b < 0) continue;",
+      "            p[b] = b, s[a] -= s[b], comps++;",
+      "        }",
+      "    }",
+      "};"
+    ],
+    "description": "Supports historical snapshots and rollback for offline dynamic connectivity and divide-and-conquer on time (0-indexed: 0 to n-1). Omits path compression to allow exact state reversal."
+  },
+  "Potential (Weighted) DSU": {
+    "prefix": [
+      "cp-potential-dsu",
+      "cp-weighted-dsu"
+    ],
+    "body": [
+      "template <class T = long long> struct PotentialDSU {",
+      "    vector<int> p;  // Parent pointers (0-indexed, 0 <= x < n)",
+      "    vector<T> d;    // Potential offset: d[x] = value[x] - value[parent[x]] (0-indexed)",
+      "",
+      "    // Initializes PotentialDSU for n elements, 0-indexed (0 to n-1)",
+      "    PotentialDSU(int n = 0) : p(n), d(n, T()) { iota(p.begin(), p.end(), 0); }",
+      "",
+      "    // Finds representative root of 0-indexed element x and compresses potential offsets along path",
+      "    int find(int x) {",
+      "        if (p[x] == x) return x;",
+      "        int r = find(p[x]);",
+      "        d[x] += d[p[x]];",
+      "        return p[x] = r;",
+      "    }",
+      "",
+      "    // Checks if 0-indexed elements a and b belong to the same component",
+      "    bool same(int a, int b) { return find(a) == find(b); }",
+      "",
+      "    // Returns value[b] - value[a] for connected 0-indexed elements a and b",
+      "    T diff(int a, int b) { find(a), find(b); return d[b] - d[a]; }",
+      "",
+      "    // Asserts constraint value[b] - value[a] = w (0-indexed a, b); returns false if contradictory",
+      "    bool unite(int a, int b, T w) {",
+      "        int ra = find(a), rb = find(b);",
+      "        if (ra == rb) return d[b] - d[a] == w;",
+      "        p[rb] = ra;",
+      "        d[rb] = w - d[b] + d[a];",
+      "        return true;",
+      "    }",
+      "};"
+    ],
+    "description": "Maintains potential equations of the form value[b] - value[a] = w for 0-indexed elements. Detects contradictions across constraints."
+  },
+  "DSU: Instantiate": {
+    "prefix": [
+      "cp-dsu-init"
+    ],
+    "body": [
+      "DSU ${1:dsu}(${2:n});  // 0-indexed: elements 0 to ${2:n}-1",
+      "// ${1:dsu}.unite(u, v); if (${1:dsu}.same(u, v)) { ... }"
+    ],
+    "description": "Instantiate standard DSU for n elements (0-indexed: 0 to n-1)."
+  },
+  "RollbackDSU: Instantiate": {
+    "prefix": [
+      "cp-rollback-dsu-init"
+    ],
+    "body": [
+      "RollbackDSU ${1:dsu}(${2:n});  // 0-indexed: elements 0 to ${2:n}-1",
+      "// int snap = ${1:dsu}.snapshot(); ... ${1:dsu}.rollback(snap);"
+    ],
+    "description": "Instantiate RollbackDSU for n elements (0-indexed: 0 to n-1)."
+  },
+  "PotentialDSU: Instantiate": {
+    "prefix": [
+      "cp-potential-dsu-init"
+    ],
+    "body": [
+      "PotentialDSU<${1:long long}> ${2:dsu}(${3:n});  // 0-indexed: elements 0 to ${3:n}-1",
+      "// ${2:dsu}.unite(u, v, weight); T diff = ${2:dsu}.diff(u, v);"
+    ],
+    "description": "Instantiate weighted PotentialDSU for n elements (0-indexed: 0 to n-1)."
+  }
+}

@@ -1,6 +1,6 @@
 # Competitive Programming Toolkit & C++ Library
 
-A high-performance, battle-tested competitive programming library and workspace featuring **188 production-grade C++ snippets** organized across 11 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
+A high-performance, battle-tested competitive programming library and workspace featuring **231 production-grade C++ snippets** organized across 32 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
 
 ---
 
@@ -12,7 +12,8 @@ A high-performance, battle-tested competitive programming library and workspace 
   - [1. Advanced Coordinate Compression (`Compressor`)](#1-advanced-coordinate-compression-compressor)
   - [2. Persistent Segment Tree & Workflows](#2-persistent-segment-tree--workflows)
   - [3. Core Template & Fast I/O](#3-core-template--fast-io)
-- [Modular Snippets Catalog (171 Snippets)](#modular-snippets-catalog-171-snippets)
+  - [4. Ultra-Fast Anti-Hack Hash Table (`fast_hash_table`)](#4-ultra-fast-anti-hack-hash-table-fast_hash_table)
+- [Modular Snippets Catalog (231 Snippets)](#modular-snippets-catalog-231-snippets)
   - [Module Breakdown](#module-breakdown)
   - [Detailed Catalog by Category](#detailed-catalog-by-category)
 - [Developer Tools & Automation](#developer-tools--automation)
@@ -30,7 +31,7 @@ Designed for competitive programming on platforms like **Codeforces**, **AtCoder
 
 - **Safety-First Local Execution**: Catches segmentation faults, out-of-bounds indexing, and undefined behavior locally via AddressSanitizer (`-fsanitize=address,undefined`) and GLIBCXX debug checks (`-D_GLIBCXX_DEBUG`).
 - **Differential Stress Testing**: Automated verification of candidate solutions against slow brute-force implementations on randomized inputs, producing minimal failing testcases.
-- **11 Domain-Specific Snippet Modules**: 171 modular snippets organized logically by algorithmic domain for rapid tab-completion during timed contests.
+- **32 Domain-Specific Snippet Modules**: 231 modular snippets organized logically by algorithmic domain for rapid tab-completion during timed contests.
 - **Modern C++17/20 Implementation**: Optimized for clean interfaces, minimal boilerplate, zero-overhead abstraction, and fast execution.
 
 ---
@@ -42,14 +43,22 @@ Designed for competitive programming on platforms like **Codeforces**, **AtCoder
 ├── .vscode/
 │   ├── cp-templates.code-snippets              # Contest boilerplate, macros, fast I/O, debug print
 │   ├── cp-techniques.code-snippets             # Coordinate compression, 2D prefix sums, bit tricks
-│   ├── cp-segtree.code-snippets                # Iterative SegTree (Monoid) & Li Chao Tree
+│   ├── cp-segtree.code-snippets                # Iterative SegTree (Monoid) point and range queries
+│   ├── cp-lichao-tree.code-snippets            # Li Chao Segment Tree (dynamic line insertion)
 │   ├── cp-lazy-segtree.code-snippets           # Lazy Segment Tree (ACL style range ops)
 │   ├── cp-persistent-segtree.code-snippets     # Persistent SegTree (PST) & Lazy PST (Flip/Sum)
 │   ├── cp-merge-sort-tree.code-snippets        # Static & Point-Update (PBDS) Merge Sort Trees
-│   ├── cp-dsu-fenwick.code-snippets            # DSU (Standard/Rollback/Potential), Fenwick, PBDS
-│   ├── cp-hash-linked-list.code-snippets       # Hash tables, Anti-hack custom hash, Linked Lists
-│   ├── cp-stack-queue.code-snippets            # Stacks, Queues, Deque, Monotonic Stacks, Shunting-Yard
-│   ├── cp-advanced-trees.code-snippets         # BST, AVL Tree, Red-Black Tree, Heaps, Tries
+│   ├── cp-dsu.code-snippets                    # Disjoint Set Union (Standard, Rollback, Potential)
+│   ├── cp-fenwick.code-snippets                # Fenwick Trees / BIT (1D, Range-Add, 2D)
+│   ├── cp-ordered-set.code-snippets            # Portable Treap OST (Ordered Set / Multiset) & queries
+│   ├── cp-pbds.code-snippets                   # GNU PBDS Order-Statistics Tree (Set & Multiset)
+│   ├── cp-hash.code-snippets                   # Fast Hash Table (PBDS gp_hash_table), custom hash, chaining
+│   ├── cp-linked-list.code-snippets            # Singly, Doubly, Circular Linked Lists, ListStack
+│   ├── cp-stack.code-snippets                  # Dynamic Stack, Monotonic Stacks, Expression Parsing
+│   ├── cp-queue.code-snippets                  # Circular Buffer Queue, Circular Array Deque
+│   ├── cp-advanced-trees.code-snippets         # Balanced BSTs: BST, AVL Tree, Red-Black Tree
+│   ├── cp-heap.code-snippets                   # Binary Heap (Min / Max Heap)
+│   ├── cp-trie.code-snippets                   # 26-way Prefix Trie, Binary XOR Trie
 │   ├── cp-graph-paths.code-snippets            # BFS, Dijkstra, 0-1 BFS, Bellman-Ford, Floyd-Warshall
 │   ├── cp-graph-connectivity.code-snippets     # MST, SCC (Tarjan/Kosaraju), 2-SAT, Bridges, BCC
 │   ├── cp-graph-flows.code-snippets            # Dinic Max Flow, Min-Cost Max-Flow, Hopcroft-Karp
@@ -61,7 +70,8 @@ Designed for competitive programming on platforms like **Codeforces**, **AtCoder
 │   ├── cp-dp.code-snippets                     # LIS, LCS, Knapsacks, Digit DP, SOS DP, D&C optimization
 │   ├── cp-strings.code-snippets                # KMP, Z-algorithm, Manacher, Rolling Hash, Suffix Array
 │   ├── cp-geometry.code-snippets               # Points & Vectors, Convex Hulls, Polygon Area
-│   ├── cp-searching-sorting.code-snippets      # Binary Search, Ternary Search, Mo's Algorithm, Sorts
+│   ├── cp-searching.code-snippets              # Predicate Binary Search, Ternary Search, Fibonacci Search
+│   ├── cp-sorting.code-snippets                # Quick, Merge, Heap, Counting, Radix, Inversions
 │   ├── cp-backtracking.code-snippets           # N-Queens, Knight's Tour, Graph Coloring, Combinations
 │   └── settings.json                           # VS Code configuration for snippet expansion
 ├── tools/
@@ -165,7 +175,24 @@ Prefixes: `cp-template`, `cpplate`
 
 ---
 
-## Modular Snippets Catalog (200 Snippets across 23 Files)
+### 4. Ultra-Fast Anti-Hack Hash Table (`fast_hash_table`)
+
+Prefixes: `cp-fast-hash-table`, `cp-fast-map`, `cp-gp-hash-table`, `cp-fast-hash-init`, `cp-fast-set-init`
+
+A drop-in wrapper around GCC PBDS `__gnu_pbds::gp_hash_table` paired with an irrational-multiplier custom hash (`chash`). Preallocates $2^{16}$ buckets by default to avoid rehashing overhead while executing operations 3-6x faster than `std::unordered_map` with defense against anti-hash tests on Codeforces.
+
+```cpp
+// Instantiate map:
+fast_hash_table<ll, int> mp;          // O(1) avg lookup/insert with 2^16 preallocated buckets
+fast_hash_table<ll, int> mp(1 << 20);  // Custom preallocated bucket size
+
+// Instantiate set:
+fast_hash_set<ll> st;
+```
+
+---
+
+## Modular Snippets Catalog (231 Snippets across 32 Files)
 
 ### Module Breakdown
 
@@ -173,14 +200,22 @@ Prefixes: `cp-template`, `cpplate`
 | :--- | :--- | :---: | :--- |
 | [`cp-templates.code-snippets`](./.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
 | [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, bit tricks. |
-| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees (Basic) | **11** | Iterative SegTree (Monoid), point set/update, range queries, Li Chao Tree. |
+| [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees (Basic) | **10** | Iterative SegTree (Monoid), point set/update, range queries. |
+| [`cp-lichao-tree.code-snippets`](./.vscode/cp-lichao-tree.code-snippets) | Li Chao Tree | **2** | Dynamic line insertion $y = mx + b$ and point minimum/maximum queries. |
 | [`cp-lazy-segtree.code-snippets`](./.vscode/cp-lazy-segtree.code-snippets) | Lazy Segment Trees | **9** | Range Add/Set/Affine/Flip with Range Sum/Min/Max (ACL style). |
 | [`cp-persistent-segtree.code-snippets`](./.vscode/cp-persistent-segtree.code-snippets) | Persistent SegTree | **15** | Standard PST, Lazy PST Flip (Hashing), Lazy PST Range Add & Sum (Rollbacks). |
-| [`cp-merge-sort-tree.code-snippets`](./.vscode/cp-merge-sort-tree.code-snippets) | Merge Sort Trees | **19** | Static MST (order counts) & Point-Update Dynamic PBDS MST ($k$-th queries). |
-| [`cp-dsu-fenwick.code-snippets`](./.vscode/cp-dsu-fenwick.code-snippets) | DSU & Fenwick Trees | **7** | DSU (Standard, Rollback, Potential), Fenwick (1D, Range-Add, 2D), PBDS. |
-| [`cp-hash-linked-list.code-snippets`](./.vscode/cp-hash-linked-list.code-snippets) | Hash & Linked Lists | **6** | Separate Chaining, Anti-Hack custom hash, Singly/Doubly/Circular lists. |
-| [`cp-stack-queue.code-snippets`](./.vscode/cp-stack-queue.code-snippets) | Stacks & Queues | **7** | Array/List stacks, Circular queues, Deque, Monotonic stacks, Shunting-Yard. |
-| [`cp-advanced-trees.code-snippets`](./.vscode/cp-advanced-trees.code-snippets) | Trees & Heaps | **6** | BST, AVL Tree, Red-Black Tree, Binary Heap, Trie, Binary XOR Trie. |
+| [`cp-merge-sort-tree.code-snippets`](./.vscode/cp-merge-sort-tree.code-snippets) | Merge Sort Trees | **20** | Static MST (order counts, $k$-th) & Point-Update Dynamic PBDS MST ($k$-th queries). |
+| [`cp-dsu.code-snippets`](./.vscode/cp-dsu.code-snippets) | Disjoint Set Union | **6** | Standard DSU (size/rank), Rollback DSU (snapshots), Weighted Potential DSU. |
+| [`cp-fenwick.code-snippets`](./.vscode/cp-fenwick.code-snippets) | Fenwick Trees (BIT) | **6** | Standard 1D BIT ($k$-th lifting), Range-Add Range-Sum BIT, 2D BIT. |
+| [`cp-ordered-set.code-snippets`](./.vscode/cp-ordered-set.code-snippets) | Ordered Set & Multiset (Portable) | **11** | Treap-based OST (`ordered_set`, `ordered_multiset`), $k$-th, rank, bounds (zero PBDS dependency). |
+| [`cp-pbds.code-snippets`](./.vscode/cp-pbds.code-snippets) | Policy-Based Structures | **5** | GNU PBDS Order-Statistics Tree (`find_by_order`, `order_of_key`), safe multiset erasure. |
+| [`cp-hash.code-snippets`](./.vscode/cp-hash.code-snippets) | Hash Tables | **8** | Ultra-Fast PBDS `gp_hash_table` (`fast_hash_table`, `fast_hash_set`) with `chash`, Separate Chaining, custom hash. |
+| [`cp-linked-list.code-snippets`](./.vscode/cp-linked-list.code-snippets) | Linked Lists | **4** | Singly Linked List (reversal), Doubly Linked List, Circular Linked List, ListStack. |
+| [`cp-stack.code-snippets`](./.vscode/cp-stack.code-snippets) | Stacks | **5** | Dynamic Array Stack, Monotonic Stacks (nearest, NGE/NSE), Shunting-Yard, Evaluation. |
+| [`cp-queue.code-snippets`](./.vscode/cp-queue.code-snippets) | Queues & Deque | **2** | Circular Buffer Queue (FIFO ring buffer), Circular Array Deque. |
+| [`cp-advanced-trees.code-snippets`](./.vscode/cp-advanced-trees.code-snippets) | Search Trees | **3** | Binary Search Tree (BST), AVL Tree (height-balanced), Red-Black Tree. |
+| [`cp-heap.code-snippets`](./.vscode/cp-heap.code-snippets) | Heaps | **3** | Binary Min-Heap, Binary Max-Heap with 0-indexed arithmetic and O(n) build. |
+| [`cp-trie.code-snippets`](./.vscode/cp-trie.code-snippets) | Tries | **2** | 26-way lowercase character Trie, Binary XOR Trie ($< 2^B$). |
 | [`cp-graph-paths.code-snippets`](./.vscode/cp-graph-paths.code-snippets) | Graph Traversal & Paths | **9** | BFS, Dijkstra, 0-1 BFS, Bellman-Ford, Floyd-Warshall, Johnson, Topo Sort. |
 | [`cp-graph-connectivity.code-snippets`](./.vscode/cp-graph-connectivity.code-snippets) | Graph Connectivity | **9** | Kruskal, Prim, Boruvka, Tarjan SCC, 2-SAT, Bridges, Kosaraju, BCC. |
 | [`cp-graph-flows.code-snippets`](./.vscode/cp-graph-flows.code-snippets) | Flows & Matching | **3** | Dinic Max Flow & Min Cut, Min-Cost Max-Flow (SPFA), Hopcroft-Karp. |
@@ -189,12 +224,13 @@ Prefixes: `cp-template`, `cpplate`
 | [`cp-math-combinatorics.code-snippets`](./.vscode/cp-math-combinatorics.code-snippets) | Combinatorics | **10** | Binomial coefficients, Catalan numbers, Permutations, Combinations table. |
 | [`cp-math-algebra.code-snippets`](./.vscode/cp-math-algebra.code-snippets) | Algebra & Modulo | **7** | Modular integer (`mint`), Matrix exponentiation, Linear Systems, Linear Basis, CRT. |
 | [`cp-math-polynomials.code-snippets`](./.vscode/cp-math-polynomials.code-snippets) | Polynomials & NTT | **5** | NTT, Polynomial Convolution, Inversion, Lagrange Interpolation, Bostan-Mori. |
-| [`cp-searching-sorting.code-snippets`](./.vscode/cp-searching-sorting.code-snippets) | Search & Sorting | **15** | Predicate Binary Search (`first-true`), Ternary Search, Mo's Algorithm, Sorts. |
+| [`cp-searching.code-snippets`](./.vscode/cp-searching.code-snippets) | Searching Algorithms | **5** | Predicate Binary Search (`first-true`), Ternary Search (int/real), Linear, Binary, Fibonacci. |
+| [`cp-sorting.code-snippets`](./.vscode/cp-sorting.code-snippets) | Sorting Algorithms | **10** | Inversion Counting, Quick, Merge, Heap, Counting, Radix, Bucket, Insertion, Selection, Bubble. |
 | [`cp-dp.code-snippets`](./.vscode/cp-dp.code-snippets) | Dynamic Programming | **12** | LIS, LCS, Knapsacks (0/1, Unbounded, Bitset), Digit DP, SOS DP, Bitmask TSP. |
 | [`cp-strings.code-snippets`](./.vscode/cp-strings.code-snippets) | String Algorithms | **9** | KMP, Z-Algorithm, Manacher, Anti-Hack Rolling Hash, Suffix Array + LCP. |
 | [`cp-geometry.code-snippets`](./.vscode/cp-geometry.code-snippets) | Geometry | **8** | Points & Vectors, Monotone Chain Convex Hull, Graham Scan, Polygon Area. |
 | [`cp-backtracking.code-snippets`](./.vscode/cp-backtracking.code-snippets) | Backtracking | **4** | N-Queens, Knight's Tour, Graph $m$-Coloring, Combinations generator. |
-| **Total** | | **200** | **All files under 500 lines** |
+| **Total** | | **231** | **All files under 500 lines** |
 
 ---
 
@@ -253,8 +289,9 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-mst-geq`: Count elements $\ge x$ in range $[l, r]$ (`end - lower_bound`).
   - `cp-mst-gt`: Count elements $> x$ in range $[l, r]$ (`end - upper_bound`).
   - `cp-mst-range`: Count elements in value range $[x, y]$ within range $[l, r]$.
+  - `cp-mst-kth`: Range $k$-th smallest element query in $\mathcal{O}(\log^3 n)$.
   - `cp-mst-query`: Custom canonical segment query lambda over range $[l, r]$.
-  - `cp-mst-helpers`, `cp-mst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`).
+  - `cp-mst-helpers`, `cp-mst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`, `kth`).
 - **Point Update Merge Sort Tree (Dynamic PBDS MST)**:
   - `cp-point-update-mst`, `cp-pmst`: Point-update Merge Sort Tree via PBDS ordered set of pairs with duplicate handling (0-indexed).
   - `cp-pmst-init`: Instantiate PointUpdateMergeSortTree over vector `a`.
@@ -264,7 +301,7 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-pmst-geq`: Count elements $\ge x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
   - `cp-pmst-gt`: Count elements $> x$ in range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
   - `cp-pmst-range`: Count elements in value range $[x, y]$ within range $[l, r]$ in $\mathcal{O}(\log^2 n)$.
-  - `cp-pmst-kth`: Range $k$-th smallest element query via binary search on answer in $\mathcal{O}(\log^3 n)$.
+  - `cp-pmst-kth`: Range $k$-th smallest element query in $\mathcal{O}(\log^3 n)$ using root `find_by_order` and segment `order_of_key`.
   - `cp-pmst-helpers`, `cp-pmst-utils`: Standalone helper functions (`count_leq`, `count_lt`, `count_geq`, `count_gt`, `count_range`, `kth`).
 - `cp-lichao-tree`: Li Chao Segment Tree for dynamic line insertions and minimum/maximum evaluation at $x$.
 
@@ -283,9 +320,15 @@ Prefixes: `cp-template`, `cpplate`
   - `cp-fenwick-2d`: 2D Fenwick tree for 2D point update and rectangle sum.
 - **Trees & Policy-Based Structures**:
   - `cp-pbds`: GNU Policy-Based Ordered Set (`find_by_order`, `order_of_key`).
+  - `cp-ordered-tree`, `cp-portable-ordered-set`: Portable Treap-based order-statistic tree (`ordered_set`, `ordered_multiset`) without PBDS dependency; safe single-copy removal and duplicates support.
   - `cp-trie`: String Trie with frequency counting and prefix search.
   - `cp-xor-trie`: Binary Trie for maximum/minimum XOR pair queries.
   - BST, AVL Tree, Red-Black Tree, Min/Max Binary Heap implementations.
+- **Hash Tables & Policy-Based Hash Maps**:
+  - `cp-fast-hash-table`, `cp-fast-map`, `cp-gp-hash-table`: Ultra-fast GNU PBDS `gp_hash_table` wrapper (`fast_hash_table`, `fast_hash_set`) using `chash` (3-6x faster than `std::unordered_map`).
+  - `cp-fast-hash-init`, `cp-fast-set-init`, `cp-gp-table-init`: Instant instantiation with preallocated $2^{16}$ buckets.
+  - `cp-hash-table`, `cp-custom-hash-table`: Separate Chaining Hash Table.
+  - `cp-custom-hash`, `cp-safe-map`, `cp-safe-set`: Anti-hack `splitmix64` custom hash.
 - **Linear Buffers**: Circular Array Queue, Circular Array Deque, Singly / Doubly / Circular Linked Lists.
 
 </details>

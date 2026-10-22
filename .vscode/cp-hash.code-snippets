@@ -1,0 +1,200 @@
+{
+  "Hash Table with Separate Chaining": {
+    "prefix": [
+      "cp-hash-table",
+      "cp-custom-hash-table"
+    ],
+    "body": [
+      "#include<vector>",
+      "#include<list>",
+      "#include<utility>",
+      "#include<stdexcept>",
+      "",
+      "template <typename K, typename V>",
+      "class ChainingHashTable {",
+      "private:",
+      "    std::vector<std::list<std::pair<K, V>>> table;  // Array of buckets storing key-value pairs",
+      "    size_t num_elements = 0;                         // Total number of stored elements",
+      "    size_t num_buckets;                              // Total number of hash buckets",
+      "",
+      "    // 0-indexed bucket hash computation",
+      "    size_t hash(const K& key) const {",
+      "        return std::hash<K>{}(key) % num_buckets;",
+      "    }",
+      "",
+      "public:",
+      "    // Initializes hash table with specified number of buckets (default 101)",
+      "    ChainingHashTable(size_t buckets = 101) : num_buckets(buckets), table(buckets) {}",
+      "",
+      "    // Inserts or updates key-value pair; expected O(1)",
+      "    void insert(const K& key, const V& value) {",
+      "        size_t b = hash(key);",
+      "        for (auto& pair : table[b]) {",
+      "            if (pair.first == key) {",
+      "                pair.second = value; // Update existing",
+      "                return;",
+      "            }",
+      "        }",
+      "        table[b].emplace_back(key, value);",
+      "        num_elements++;",
+      "    }",
+      "",
+      "    // Finds value for key; returns true and sets out_val if found; expected O(1)",
+      "    bool find(const K& key, V& out_val) const {",
+      "        size_t b = hash(key);",
+      "        for (const auto& pair : table[b]) {",
+      "            if (pair.first == key) {",
+      "                out_val = pair.second;",
+      "                return true;",
+      "            }",
+      "        }",
+      "        return false;",
+      "    }",
+      "",
+      "    // Erases key from table; returns true if removed, false otherwise; expected O(1)",
+      "    bool erase(const K& key) {",
+      "        size_t b = hash(key);",
+      "        for (auto it = table[b].begin(); it != table[b].end(); ++it) {",
+      "            if (it->first == key) {",
+      "                table[b].erase(it);",
+      "                num_elements--;",
+      "                return true;",
+      "            }",
+      "        }",
+      "        return false;",
+      "    }",
+      "",
+      "    // Number of elements in table",
+      "    size_t size() const { return num_elements; }",
+      "",
+      "    // Checks if table has 0 elements",
+      "    bool empty() const { return num_elements == 0; }",
+      "};"
+    ],
+    "description": "Hash Table with Separate Chaining for key-value storage with expected O(1) operations."
+  },
+  "Anti-Hack Custom Hash for Competitive Programming": {
+    "prefix": [
+      "cp-custom-hash",
+      "cp-anti-hack-hash"
+    ],
+    "body": [
+      "#include<chrono>",
+      "#include<cstdint>",
+      "#include<unordered_map>",
+      "",
+      "// High-performance anti-hack custom 64-bit hash (prevents O(N^2) HashDOS hacks on Codeforces)",
+      "struct custom_hash {",
+      "    static uint64_t splitmix64(uint64_t x) {",
+      "        // http://xorshift.di.unimi.it/splitmix64.c",
+      "        x += 0x9e3779b97f4a7c15;",
+      "        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;",
+      "        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;",
+      "        return x ^ (x >> 31);",
+      "    }",
+      "",
+      "    size_t operator()(uint64_t x) const {",
+      "        static const uint64_t FIXED_RANDOM =",
+      "            std::chrono::steady_clock::now().time_since_epoch().count();",
+      "        return splitmix64(x + FIXED_RANDOM);",
+      "    }",
+      "};",
+      "",
+      "// Safe hash table declarations in CP:",
+      "// std::unordered_map<long long, int, custom_hash> safe_map;",
+      "// std::unordered_set<long long, custom_hash> safe_set;"
+    ],
+    "description": "Anti-hack custom hash using splitmix64 with randomized timestamp seed to prevent O(n^2) hash-collision tests."
+  },
+  "Hash: Safe std::unordered_map Instantiate": {
+    "prefix": [
+      "cp-safe-map",
+      "cp-hash-map"
+    ],
+    "body": [
+      "unordered_map<${1:long long}, ${2:int}, custom_hash> ${3:mp};",
+      "${3:mp}.reserve(${4:1024});  // Pre-allocate buckets to avoid rehashing overhead",
+      "${3:mp}.max_load_factor(0.25);  // Keep load factor low for speed"
+    ],
+    "description": "Instantiate anti-hack std::unordered_map with custom_hash."
+  },
+  "Hash: Safe std::unordered_set Instantiate": {
+    "prefix": [
+      "cp-safe-set",
+      "cp-hash-set"
+    ],
+    "body": [
+      "unordered_set<${1:long long}, custom_hash> ${2:st};",
+      "${2:st}.reserve(${3:1024});  // Pre-allocate buckets to avoid rehashing overhead",
+      "${2:st}.max_load_factor(0.25);  // Keep load factor low for speed"
+    ],
+    "description": "Instantiate anti-hack std::unordered_set with custom_hash."
+  },
+  "Fast Hash Table (PBDS gp_hash_table with chash)": {
+    "prefix": [
+      "cp-fast-hash-table",
+      "cp-fast-map",
+      "cp-gp-hash-table"
+    ],
+    "body": [
+      "#include <cmath>",
+      "#include <cstdint>",
+      "#include <ext/pb_ds/assoc_container.hpp>",
+      "",
+      "// Anti-hash-collision custom 64-bit integer hash using odd irrational constant multiplier",
+      "struct chash {",
+      "    const uint64_t C = (uint64_t)(4e18 * acos(0)) | 71;  // Random odd multiplier based on pi",
+      "    // 0-indexed byte-swap reversal after multiplication to defeat anti-hash tests",
+      "    uint64_t operator()(uint64_t x) const { return __builtin_bswap64(x * C); }",
+      "};",
+      "",
+      "// Ultra-fast hash table wrapping GCC PBDS gp_hash_table with chash and preallocated bucket power-of-2 size",
+      "template <class K, class V, class Hash = chash>",
+      "struct fast_hash_table : public __gnu_pbds::gp_hash_table<K, V, Hash> {",
+      "    using Base = __gnu_pbds::gp_hash_table<K, V, Hash>;",
+      "    // Constructor: preallocates initial_capacity buckets (default: 2^16 = 65536) to prevent rehashing overhead",
+      "    fast_hash_table(size_t initial_capacity = (1 << 16))",
+      "        : Base({}, {}, {}, {}, {initial_capacity}) {}",
+      "};",
+      "",
+      "// Ultra-fast hash set wrapping GCC PBDS gp_hash_table with null_type",
+      "template <class K, class Hash = chash>",
+      "struct fast_hash_set : public __gnu_pbds::gp_hash_table<K, __gnu_pbds::null_type, Hash> {",
+      "    using Base = __gnu_pbds::gp_hash_table<K, __gnu_pbds::null_type, Hash>;",
+      "    // Constructor: preallocates initial_capacity buckets (default: 2^16 = 65536)",
+      "    fast_hash_set(size_t initial_capacity = (1 << 16))",
+      "        : Base({}, {}, {}, {}, {initial_capacity}) {}",
+      "};"
+    ],
+    "description": "Ultra-fast GCC PBDS gp_hash_table with anti-hack chash and preallocated buckets (3-6x faster than std::unordered_map)."
+  },
+  "Fast Hash Table: Instantiate Variable": {
+    "prefix": [
+      "cp-fast-hash-init",
+      "cp-fast-map-init"
+    ],
+    "body": [
+      "fast_hash_table<${1:long long}, ${2:int}> ${3:h};  // Preallocated 2^16 buckets, O(1) average lookup/insert"
+    ],
+    "description": "Instantiate fast_hash_table variable with preallocated 2^16 buckets."
+  },
+  "Fast Hash Set: Instantiate Variable": {
+    "prefix": [
+      "cp-fast-set-init"
+    ],
+    "body": [
+      "fast_hash_set<${1:long long}> ${2:st};  // Preallocated 2^16 buckets, O(1) average membership test"
+    ],
+    "description": "Instantiate fast_hash_set variable with preallocated 2^16 buckets."
+  },
+  "Raw PBDS gp_hash_table: Instantiate Variable": {
+    "prefix": [
+      "cp-gp-table-init"
+    ],
+    "body": [
+      "__gnu_pbds::gp_hash_table<${1:long long}, ${2:int}, chash> ${3:h}({}, {}, {}, {}, {${4:1 << 16}});  // O(1) average"
+    ],
+    "description": "Instantiate raw __gnu_pbds::gp_hash_table with 5 constructor arguments for initial bucket size."
+  }
+}
+

@@ -1,0 +1,140 @@
+{
+  "Standard Fenwick Tree (BIT)": {
+    "prefix": [
+      "cp-fenwick",
+      "cp-bit"
+    ],
+    "body": [
+      "template <typename T> struct BIT {",
+      "    int n;          // Array capacity (0-indexed user interface: 0 to n-1)",
+      "    vector<T> t;    // Internal Fenwick buffer, 1-indexed (size n + 1)",
+      "",
+      "    // Initializes BIT of size n (0-indexed user interface: indices 0 to n-1)",
+      "    BIT(int n_ = 0) : n(n_), t(n_ + 1, T()) {}",
+      "",
+      "    // Point update: adds value v at 0-indexed position i (0 <= i < n); O(log n)",
+      "    void add(int i, T v) { for (i++; i <= n; i += i & -i) t[i] += v; }",
+      "",
+      "    // Prefix sum on [0, i] inclusive (0-indexed index i); O(log n)",
+      "    T sum(int i) const { T r = T(); for (i++; i > 0; i -= i & -i) r += t[i]; return r; }",
+      "",
+      "    // Range sum on [l, r] inclusive (0-indexed indices 0 <= l <= r < n); O(log n)",
+      "    T query(int l, int r) const { return l > r ? T() : sum(r) - (l ? sum(l - 1) : T()); }",
+      "",
+      "    // Smallest 0-indexed index i with prefix sum [0, i] >= k (requires non-negative values); returns n if none (O(log n))",
+      "    int kth(T k) const {",
+      "        int pos = 0, pw = 1;",
+      "        while (pw * 2 <= n) pw *= 2;",
+      "        for (; pw; pw >>= 1)",
+      "            if (pos + pw <= n && t[pos + pw] < k) pos += pw, k -= t[pos];",
+      "        return pos;",
+      "    }",
+      "};"
+    ],
+    "description": "Maintains prefix sums under point updates in O(log n) time (0-indexed interface). Includes O(log n) kth binary lifting over powers of two."
+  },
+  "Range-Add Range-Sum BIT": {
+    "prefix": [
+      "cp-fenwick-range",
+      "cp-range-bit"
+    ],
+    "body": [
+      "// RangeBIT: range add, range sum on [l, r] (inclusive, 0-indexed).",
+      "template <typename T> struct RangeBIT {",
+      "    BIT<T> b1;  // Maintains differences sum(v)",
+      "    BIT<T> b2;  // Maintains weighted differences sum(v * p)",
+      "",
+      "    // Initializes RangeBIT for n elements (0-indexed: 0 to n-1)",
+      "    RangeBIT(int n = 0) : b1(n), b2(n) {}",
+      "",
+      "    // Point helper at 0-indexed position p",
+      "    void add_point(int p, T v) { b1.add(p, v), b2.add(p, v * p); }",
+      "",
+      "    // Range update: adds value v to all elements in [l, r] inclusive (0-indexed); O(log n)",
+      "    void add(int l, int r, T v) {",
+      "        add_point(l, v);",
+      "        if (r + 1 < b1.n) add_point(r + 1, -v);",
+      "    }",
+      "",
+      "    // Prefix sum on [0, i] inclusive (0-indexed); O(log n)",
+      "    T prefix(int i) const { return b1.sum(i) * (i + 1) - b2.sum(i); }",
+      "",
+      "    // Range sum query on [l, r] inclusive (0-indexed); O(log n)",
+      "    T query(int l, int r) const { return l > r ? T() : prefix(r) - (l ? prefix(l - 1) : T()); }",
+      "};"
+    ],
+    "description": "Supports range addition [l, r] and range sum [l, r] in O(log n) without lazy segment trees (0-indexed interface)."
+  },
+  "2D Fenwick Tree (BIT2D)": {
+    "prefix": [
+      "cp-fenwick-2d",
+      "cp-bit2d"
+    ],
+    "body": [
+      "template <typename T> struct BIT2D {",
+      "    int n, m;               // Grid dimensions: rows 0 <= x < n, cols 0 <= y < m (0-indexed)",
+      "    vector<vector<T>> t;    // Internal 2D Fenwick buffer, 1-indexed (size (n+1) x (m+1))",
+      "",
+      "    // Initializes 2D Fenwick grid of size n x m (0-indexed: rows 0 to n-1, cols 0 to m-1)",
+      "    BIT2D(int n_ = 0, int m_ = 0) : n(n_), m(m_), t(n_ + 1, vector<T>(m_ + 1, T())) {}",
+      "",
+      "    // Point update: adds value v at 0-indexed cell (x, y); O(log n log m)",
+      "    void add(int x, int y, T v) {",
+      "        for (int i = x + 1; i <= n; i += i & -i)",
+      "            for (int j = y + 1; j <= m; j += j & -j) t[i][j] += v;",
+      "    }",
+      "",
+      "    // 2D Prefix sum on subgrid [0, x] x [0, y] inclusive (0-indexed); O(log n log m)",
+      "    T sum(int x, int y) const {",
+      "        T r = T();",
+      "        for (int i = x + 1; i > 0; i -= i & -i)",
+      "            for (int j = y + 1; j > 0; j -= j & -j) r += t[i][j];",
+      "        return r;",
+      "    }",
+      "",
+      "    // 2D Subgrid rectangle sum on [x1, x2] x [y1, y2] inclusive (0-indexed); O(log n log m)",
+      "    T query(int x1, int y1, int x2, int y2) const {",
+      "        T r = sum(x2, y2);",
+      "        if (x1) r -= sum(x1 - 1, y2);",
+      "        if (y1) r -= sum(x2, y1 - 1);",
+      "        if (x1 && y1) r += sum(x1 - 1, y1 - 1);",
+      "        return r;",
+      "    }",
+      "};"
+    ],
+    "description": "2D Fenwick tree for point updates and subgrid rectangle sum queries [x1, x2] x [y1, y2] inclusive (0-indexed)."
+  },
+  "Fenwick: Instantiate 1D": {
+    "prefix": [
+      "cp-bit-init",
+      "cp-fenwick-init"
+    ],
+    "body": [
+      "BIT<${1:long long}> ${2:bit}(${3:n});  // 0-indexed: indices 0 to ${3:n}-1",
+      "// ${2:bit}.add(i, val); T sum = ${2:bit}.query(l, r); int idx = ${2:bit}.kth(k);"
+    ],
+    "description": "Instantiate 1D Fenwick Tree (0-indexed interface: 0 to n-1)."
+  },
+  "Fenwick: Instantiate RangeBIT": {
+    "prefix": [
+      "cp-range-bit-init",
+      "cp-fenwick-range-init"
+    ],
+    "body": [
+      "RangeBIT<${1:long long}> ${2:bit}(${3:n});  // 0-indexed: indices 0 to ${3:n}-1",
+      "// ${2:bit}.add(l, r, val); T sum = ${2:bit}.query(l, r);"
+    ],
+    "description": "Instantiate Range-Add Range-Sum Fenwick Tree (0-indexed interface: 0 to n-1)."
+  },
+  "Fenwick: Instantiate 2D": {
+    "prefix": [
+      "cp-bit2d-init",
+      "cp-fenwick-2d-init"
+    ],
+    "body": [
+      "BIT2D<${1:long long}> ${2:bit2d}(${3:n}, ${4:m});  // 0-indexed: rows 0 to ${3:n}-1, cols 0 to ${4:m}-1",
+      "// ${2:bit2d}.add(x, y, val); T sum = ${2:bit2d}.query(x1, y1, x2, y2);"
+    ],
+    "description": "Instantiate 2D Fenwick Tree (0-indexed interface: [0, n-1] x [0, m-1])."
+  }
+}

@@ -1,0 +1,256 @@
+{
+  "Inversion Counting via Merge Sort": {
+    "prefix": [
+      "cp-inversion-counting",
+      "cp-inversions"
+    ],
+    "body": [
+      "// Counts total inverted pairs (0-indexed indices i < j with a[i] > a[j]); O(n log n)",
+      "template <class T> long long inversion_count(vector<T> a) {",
+      "    vector<T> buf(a.size());",
+      "    function<long long(int, int)> rec = [&](int l, int r) -> long long {",
+      "        if (r - l < 2) return 0;",
+      "        int m = (l + r) / 2;",
+      "        long long res = rec(l, m) + rec(m, r);",
+      "        int i = l, j = m, k = l;",
+      "        while (i < m || j < r) {",
+      "            if (j >= r || (i < m && !(a[j] < a[i]))) buf[k++] = a[i++];",
+      "            else res += m - i, buf[k++] = a[j++];",
+      "        }",
+      "        copy(buf.begin() + l, buf.begin() + r, a.begin() + l);",
+      "        return res;",
+      "    };",
+      "    return rec(0, a.size());  // 0-indexed range [0, n)",
+      "}"
+    ],
+    "description": "Counts total inverted pairs (0-indexed i < j with a[i] > a[j]) in O(n log n) via merge sort."
+  },
+  "Selection Sort": {
+    "prefix": [
+      "cp-selection-sort"
+    ],
+    "body": [
+      "// Sorts 0-indexed array arr in-place using Selection Sort; O(n^2) comparisons, O(n) swaps",
+      "void selectionSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 0; i < n - 1; i++) {  // 0-indexed prefix",
+      "        int minIdx = i;",
+      "        for (int j = i + 1; j < n; j++) {",
+      "            if (arr[j] < arr[minIdx]) minIdx = j;",
+      "        }",
+      "        if (minIdx != i) swap(arr[i], arr[minIdx]);",
+      "    }",
+      "}"
+    ],
+    "description": "Selection Sort minimizing total swaps to O(n) with O(n^2) comparisons on 0-indexed array."
+  },
+  "Insertion Sort": {
+    "prefix": [
+      "cp-insertion-sort"
+    ],
+    "body": [
+      "// Sorts 0-indexed array arr in-place using Insertion Sort; O(n) best, O(n^2) worst",
+      "void insertionSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 1; i < n; i++) {  // 0-indexed index i",
+      "        int key = arr[i];",
+      "        int j = i - 1;",
+      "        while (j >= 0 && arr[j] > key) {",
+      "            arr[j + 1] = arr[j];",
+      "            j--;",
+      "        }",
+      "        arr[j + 1] = key;",
+      "    }",
+      "}"
+    ],
+    "description": "Insertion Sort maintaining a sorted 0-indexed prefix; highly efficient on small or nearly sorted arrays."
+  },
+  "Bubble Sort": {
+    "prefix": [
+      "cp-bubble-sort"
+    ],
+    "body": [
+      "// Sorts 0-indexed array arr in-place using Bubble Sort with early exit flag; O(n) best, O(n^2) worst",
+      "void bubbleSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = 0; i < n - 1; i++) {",
+      "        bool swapped = false;",
+      "        for (int j = 0; j < n - i - 1; j++) {  // 0-indexed adjacent comparisons",
+      "            if (arr[j] > arr[j + 1]) {",
+      "                swap(arr[j], arr[j + 1]);",
+      "                swapped = true;",
+      "            }",
+      "        }",
+      "        if (!swapped) break;",
+      "    }",
+      "}"
+    ],
+    "description": "Bubble Sort with early exit flag on 0-indexed array."
+  },
+  "Quick Sort": {
+    "prefix": [
+      "cp-quick-sort"
+    ],
+    "body": [
+      "// Lomuto partition scheme for 0-indexed subarray [low, high]",
+      "int partition(vector<int>& arr, int low, int high) {",
+      "    int pivot = arr[high];",
+      "    int i = low - 1;",
+      "    for (int j = low; j < high; j++) {",
+      "        if (arr[j] < pivot) {",
+      "            i++;",
+      "            swap(arr[i], arr[j]);",
+      "        }",
+      "    }",
+      "    swap(arr[i + 1], arr[high]);",
+      "    return i + 1;  // 0-indexed pivot position",
+      "}",
+      "",
+      "// Sorts 0-indexed subarray [low, high] using Quick Sort; average O(n log n)",
+      "void quickSort(vector<int>& arr, int low, int high) {",
+      "    if (low < high) {",
+      "        int pi = partition(arr, low, high);",
+      "        quickSort(arr, low, pi - 1);",
+      "        quickSort(arr, pi + 1, high);",
+      "    }",
+      "}"
+    ],
+    "description": "Quick Sort using Lomuto partitioning on 0-indexed ranges [low, high]."
+  },
+  "Heap Sort": {
+    "prefix": [
+      "cp-heap-sort"
+    ],
+    "body": [
+      "// Sifts down 0-indexed element at position i in heap of size n; O(log n)",
+      "void heapify(vector<int>& arr, int n, int i) {",
+      "    int largest = i;",
+      "    int l = 2 * i + 1, r = 2 * i + 2;  // 0-indexed child indices",
+      "    if (l < n && arr[l] > arr[largest]) largest = l;",
+      "    if (r < n && arr[r] > arr[largest]) largest = r;",
+      "    if (largest != i) {",
+      "        swap(arr[i], arr[largest]);",
+      "        heapify(arr, n, largest);",
+      "    }",
+      "}",
+      "",
+      "// Sorts 0-indexed array arr in-place using Heap Sort; guaranteed O(n log n)",
+      "void heapSort(vector<int>& arr) {",
+      "    int n = arr.size();",
+      "    for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);  // Build max-heap",
+      "    for (int i = n - 1; i > 0; i--) {",
+      "        swap(arr[0], arr[i]);                                  // Move current max to end",
+      "        heapify(arr, i, 0);",
+      "    }",
+      "}"
+    ],
+    "description": "In-place Heap Sort using 0-indexed array with guaranteed O(n log n) worst-case time."
+  },
+  "Merge Sort": {
+    "prefix": [
+      "cp-merge-sort"
+    ],
+    "body": [
+      "// Merges two sorted 0-indexed subarrays arr[l..m] and arr[m+1..r]; O(r - l)",
+      "void merge(vector<int>& arr, int l, int m, int r) {",
+      "    int n1 = m - l + 1, n2 = r - m;",
+      "    vector<int> L(n1), R(n2);",
+      "    for (int i = 0; i < n1; i++) L[i] = arr[l + i];",
+      "    for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];",
+      "    int i = 0, j = 0, k = l;",
+      "    while (i < n1 && j < n2) {",
+      "        if (L[i] <= R[j]) arr[k++] = L[i++];",
+      "        else arr[k++] = R[j++];",
+      "    }",
+      "    while (i < n1) arr[k++] = L[i++];",
+      "    while (j < n2) arr[k++] = R[j++];",
+      "}",
+      "",
+      "// Sorts 0-indexed subarray arr[l..r] using Merge Sort; guaranteed O(n log n)",
+      "void mergeSort(vector<int>& arr, int l, int r) {",
+      "    if (l < r) {",
+      "        int m = l + (r - l) / 2;",
+      "        mergeSort(arr, l, m);",
+      "        mergeSort(arr, m + 1, r);",
+      "        merge(arr, l, m, r);",
+      "    }",
+      "}"
+    ],
+    "description": "Stable Merge Sort on 0-indexed ranges [l, r] with guaranteed O(n log n) runtime."
+  },
+  "Counting Sort": {
+    "prefix": [
+      "cp-counting-sort"
+    ],
+    "body": [
+      "// Non-comparison integer sorting for bounded range [minVal, maxVal]; O(n + range)",
+      "void countingSort(vector<int>& arr) {",
+      "    if (arr.empty()) return;",
+      "    int maxVal = *max_element(arr.begin(), arr.end());",
+      "    int minVal = *min_element(arr.begin(), arr.end());",
+      "    int range = maxVal - minVal + 1;",
+      "",
+      "    vector<int> count(range, 0), output(arr.size());  // 0-indexed count and output arrays",
+      "    for (int x : arr) count[x - minVal]++;",
+      "    for (int i = 1; i < range; i++) count[i] += count[i - 1];",
+      "    for (int i = arr.size() - 1; i >= 0; i--) {",
+      "        output[count[arr[i] - minVal] - 1] = arr[i];",
+      "        count[arr[i] - minVal]--;",
+      "    }",
+      "    arr = output;",
+      "}"
+    ],
+    "description": "Stable Counting Sort for bounded integer ranges in O(n + K) time."
+  },
+  "Radix Sort": {
+    "prefix": [
+      "cp-radix-sort"
+    ],
+    "body": [
+      "// Stable counting sort subroutine by digit exponent exp on 0-indexed array arr; O(n)",
+      "void countSortForRadix(vector<int>& arr, int exp) {",
+      "    vector<int> output(arr.size());",
+      "    int count[10] = {0};  // 0-indexed base-10 digit buckets (0 to 9)",
+      "    for (int x : arr) count[(x / exp) % 10]++;",
+      "    for (int i = 1; i < 10; i++) count[i] += count[i - 1];",
+      "    for (int i = arr.size() - 1; i >= 0; i--) {",
+      "        output[count[(arr[i] / exp) % 10] - 1] = arr[i];",
+      "        count[(arr[i] / exp) % 10]--;",
+      "    }",
+      "    arr = output;",
+      "}",
+      "",
+      "// LSD Radix Sort for non-negative integers; O(d * n)",
+      "void radixSort(vector<int>& arr) {",
+      "    if (arr.empty()) return;",
+      "    int maxVal = *max_element(arr.begin(), arr.end());",
+      "    for (int exp = 1; maxVal / exp > 0; exp *= 10)",
+      "        countSortForRadix(arr, exp);",
+      "}"
+    ],
+    "description": "Least Significant Digit (LSD) Radix Sort for non-negative integers in O(d * n) time."
+  },
+  "Bucket Sort": {
+    "prefix": [
+      "cp-bucket-sort"
+    ],
+    "body": [
+      "// Distributes floating-point values into n uniform 0-indexed buckets [0, 1); average O(n)",
+      "void bucketSort(vector<float>& arr) {",
+      "    int n = arr.size();",
+      "    if (n <= 1) return;",
+      "    vector<vector<float>> b(n);  // 0-indexed buckets 0 to n-1",
+      "    for (int i = 0; i < n; i++) {",
+      "        int bi = min((int)(n * arr[i]), n - 1);  // 0-indexed bucket index",
+      "        b[bi].push_back(arr[i]);",
+      "    }",
+      "    for (int i = 0; i < n; i++) sort(b[i].begin(), b[i].end());",
+      "    int idx = 0;",
+      "    for (int i = 0; i < n; i++) {",
+      "        for (float val : b[i]) arr[idx++] = val;",
+      "    }",
+      "}"
+    ],
+    "description": "Bucket Sort distributing floats into n uniform 0-indexed buckets with O(n) average runtime."
+  }
+}

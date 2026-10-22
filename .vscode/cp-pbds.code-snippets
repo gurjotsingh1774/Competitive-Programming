@@ -1,0 +1,74 @@
+{
+  "Policy-Based Ordered Set (PBDS)": {
+    "prefix": [
+      "cp-pbds",
+      "cp-pbds-set"
+    ],
+    "body": [
+      "#include<ext/pb_ds/assoc_container.hpp>",
+      "#include<ext/pb_ds/tree_policy.hpp>",
+      "",
+      "// GNU PBDS Order-Statistics Tree (GCC only).",
+      "// - order_of_key(x): 0-indexed rank (# of elements strictly < x); O(log n)",
+      "// - find_by_order(k): Iterator to k-th smallest element, 0-indexed (0 <= k < size()); O(log n)",
+      "template <class T>",
+      "using pbds_set = __gnu_pbds::tree<",
+      "    T,",
+      "    __gnu_pbds::null_type,",
+      "    less<T>,",
+      "    __gnu_pbds::rb_tree_tag,",
+      "    __gnu_pbds::tree_order_statistics_node_update>;",
+      "",
+      "// PBDS Multiset (duplicates allowed via less_equal):",
+      "// WARNING: for erasure of ONE copy, use: s.erase(s.find_by_order(s.order_of_key(x))); DO NOT call s.erase(x)!",
+      "template <class T>",
+      "using pbds_multiset = __gnu_pbds::tree<",
+      "    T,",
+      "    __gnu_pbds::null_type,",
+      "    less_equal<T>,",
+      "    __gnu_pbds::rb_tree_tag,",
+      "    __gnu_pbds::tree_order_statistics_node_update>;"
+    ],
+    "description": "GNU PBDS Order-Statistics Tree with O(log n) 0-indexed find_by_order and order_of_key rank queries."
+  },
+  "PBDS: Instantiate Set": {
+    "prefix": [
+      "cp-pbds-init"
+    ],
+    "body": [
+      "pbds_set<${1:int}> ${2:s};  // Unique elements, ascending order",
+      "// ${2:s}.insert(x); ${2:s}.order_of_key(x) [0-indexed rank]; *${2:s}.find_by_order(k) [0-indexed];"
+    ],
+    "description": "Instantiate GNU PBDS ordered set (unique keys, 0-indexed rank and k-th queries)."
+  },
+  "PBDS: Instantiate Multiset": {
+    "prefix": [
+      "cp-pbds-multiset-init"
+    ],
+    "body": [
+      "pbds_multiset<${1:int}> ${2:ms};  // Duplicates allowed, ascending order",
+      "// Erase ONE copy safely: ${2:ms}.erase(${2:ms}.find_by_order(${2:ms}.order_of_key(${3:x})));",
+      "// ${2:ms}.order_of_key(x) [0-indexed rank]; *${2:ms}.find_by_order(k) [0-indexed];"
+    ],
+    "description": "Instantiate GNU PBDS ordered multiset with duplicate support."
+  },
+  "PBDS: k-th Element Query": {
+    "prefix": [
+      "cp-pbds-kth"
+    ],
+    "body": [
+      "*${1:s}.find_by_order(${2:k})  // 0-indexed k-th smallest element (requires 0 <= k < ${1:s}.size())"
+    ],
+    "description": "Query k-th smallest element (0-indexed) via PBDS."
+  },
+  "PBDS: Order of Key (Rank)": {
+    "prefix": [
+      "cp-pbds-order",
+      "cp-pbds-rank"
+    ],
+    "body": [
+      "${1:s}.order_of_key(${2:x})  // 0-indexed rank: count of elements strictly < x"
+    ],
+    "description": "Query 0-indexed rank (number of elements strictly < x) via PBDS."
+  }
+}

@@ -1,50 +1,4 @@
 {
-  "Li Chao Tree": {
-    "prefix": [
-      "cp-li-chao"
-    ],
-    "body": [
-      "// LiChao: minimum of lines y = m*x + b at integer x in [lo, hi]. Insert O(log C), query O(log C).",
-      "// For maximum, insert (-m, -b) and negate the answer.",
-      "struct LiChao {",
-      "    struct Line {",
-      "        ll m, b;",
-      "        ll eval(ll x) const { return m * x + b; }",
-      "    };",
-      "    struct Node { Line line; int l = -1, r = -1; };",
-      "    ll lo, hi;",
-      "    vector<Node> t;",
-      "    LiChao(ll lo_, ll hi_) : lo(lo_), hi(hi_) { t.push_back({{0, (ll)4e18}, -1, -1}); }",
-      "    void add_line(ll m, ll b) { insert(0, lo, hi, {m, b}); }",
-      "    void insert(int o, ll l, ll r, Line nw) {",
-      "        ll mid = l + (r - l) / 2;",
-      "        bool lef = nw.eval(l) < t[o].line.eval(l), md = nw.eval(mid) < t[o].line.eval(mid);",
-      "        if (md) swap(t[o].line, nw);",
-      "        if (l == r) return;",
-      "        if (lef != md) {",
-      "            if (t[o].l < 0) { t[o].l = t.size(); t.push_back({nw, -1, -1}); }",
-      "            else insert(t[o].l, l, mid, nw);",
-      "        } else {",
-      "            if (t[o].r < 0) { t[o].r = t.size(); t.push_back({nw, -1, -1}); }",
-      "            else insert(t[o].r, mid + 1, r, nw);",
-      "        }",
-      "    }",
-      "    ll query(ll x) const {",
-      "        int o = 0;",
-      "        ll l = lo, r = hi, res = LLONG_MAX;",
-      "        while (o >= 0) {",
-      "            res = min(res, t[o].line.eval(x));",
-      "            if (l == r) break;",
-      "            ll mid = l + (r - l) / 2;",
-      "            if (x <= mid) o = t[o].l, r = mid;",
-      "            else o = t[o].r, l = mid + 1;",
-      "        }",
-      "        return res;",
-      "    }",
-      "};"
-    ],
-    "description": "Li Chao Tree - Competitive programming template"
-  },
   "Segment Tree (Iterative, Monoid)": {
     "prefix": [
       "cp-segtree",
@@ -52,25 +6,34 @@
     ],
     "body": [
       "// Iterative bottom-up segment tree over any monoid (associative `combine` + `identity`).",
-      "// Indices are 0-based, ranges are half-open [l, r). Non-commutative ops are handled correctly.",
+      "// Indices are 0-indexed, ranges are half-open [l, r). Non-commutative ops are handled correctly.",
       "template <class T, class Op> struct SegTree {",
-      "    int n;",
-      "    T identity;",
-      "    Op combine;",
-      "    vector<T> tree;",
+      "    int n;           // Array length (0-indexed indices: 0 to n-1)",
+      "    T identity;      // Neutral identity element (e.g. 0 for sum, inf for min)",
+      "    Op combine;      // Associative binary operation (Node combine(Node a, Node b))",
+      "    vector<T> tree;  // Flat 2*n tree buffer; leaf for 0-indexed index i is at tree[n + i]",
+      "",
+      "    // Initializes empty SegTree of size n with identity elements (0-indexed: 0 to n-1)",
       "    SegTree(int n_, T identity_, Op combine_) : n(n_), identity(identity_), combine(combine_), tree(2 * n_, identity_) {}",
+      "",
+      "    // Builds SegTree in O(n) from 0-indexed vector a of length n",
       "    SegTree(const vector<T> &a, T identity_, Op combine_) : SegTree((int)a.size(), identity_, combine_) {",
       "        for (int i = 0; i < n; i++) tree[n + i] = a[i];",
       "        for (int i = n - 1; i > 0; i--) tree[i] = combine(tree[2 * i], tree[2 * i + 1]);",
       "    }",
-      "    // overwrite a[i] = value",
+      "",
+      "    // Overwrites a[i] = value at 0-indexed position i (0 <= i < n); O(log n)",
       "    void point_set(int i, T value) {",
       "        for (tree[i += n] = value; i > 1; i >>= 1) tree[i >> 1] = combine(tree[i & ~1], tree[i | 1]);",
       "    }",
-      "    // a[i] = combine(a[i], value)   (e.g. += for sum, min= for min)",
+      "",
+      "    // In-place updates a[i] = combine(a[i], value) at 0-indexed position i (0 <= i < n); O(log n)",
       "    void point_update(int i, T value) { point_set(i, combine(tree[i + n], value)); }",
+      "",
+      "    // Returns element value at 0-indexed position i (0 <= i < n); O(1)",
       "    T point_get(int i) const { return tree[i + n]; }",
-      "    // combine of a[l..r-1]",
+      "",
+      "    // Range query: combines a[l..r-1] on 0-indexed half-open interval [l, r); O(log n)",
       "    T range_query(int l, int r) const {",
       "        T left_acc = identity, right_acc = identity;",
       "        for (l += n, r += n; l < r; l >>= 1, r >>= 1) {",
@@ -79,110 +42,112 @@
       "        }",
       "        return combine(left_acc, right_acc);",
       "    }",
+      "",
+      "    // All-element query: combines whole array a[0..n-1]; O(log n)",
       "    T all_query() const { return range_query(0, n); }",
       "};"
     ],
-    "description": "Iterative segment tree for any monoid. point_set / point_update / point_get / range_query [l, r) / all_query, all O(log n). Pair with the seg-* instantiation snippets (seg-sum, seg-min, seg-max, seg-gcd, seg-xor, seg-minidx, seg-maxidx, seg-mulmod, seg-custom)."
+    "description": "Iterative segment tree for any monoid (0-indexed indices, half-open ranges [l, r)). All point updates and range queries in O(log n)."
   },
   "SegTree: Sum": {
     "prefix": [
       "cp-seg-sum"
     ],
     "body": [
-      "SegTree<${1:ll}, plus<${1}>> ${2:seg}(${3:a}, 0, plus<${1}>());  // ${3}: size n or vector<${1}>",
-      "// ${2}.point_update(i, x);  ${2}.range_query(l, r);"
+      "SegTree<${1:long long}, plus<${1}>> ${2:seg}(${3:a}, 0, plus<${1}>());  // ${3}: size n or 0-indexed vector",
+      "// ${2}.point_update(i, x); ${2}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range sum. Third arg may be a size or a vector."
+    "description": "Instantiate SegTree for range sum (0-indexed [l, r))."
   },
   "SegTree: Min": {
     "prefix": [
       "cp-seg-min"
     ],
     "body": [
-      "auto ${1:min_op} = [](${2:ll} x, ${2} y) { return min(x, y); };",
-      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, numeric_limits<${2}>::max(), ${1});  // ${4}: size n or vector<${2}>",
-      "// ${3}.point_set(i, x);  ${3}.range_query(l, r);"
+      "auto ${1:min_op} = [](${2:long long} x, ${2} y) { return min(x, y); };",
+      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, numeric_limits<${2}>::max(), ${1});  // ${4}: size n or 0-indexed vector",
+      "// ${3}.point_set(i, x); ${3}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range minimum (identity = numeric_limits max)."
+    "description": "Instantiate SegTree for range minimum (identity = numeric_limits max, 0-indexed [l, r))."
   },
   "SegTree: Max": {
     "prefix": [
       "cp-seg-max"
     ],
     "body": [
-      "auto ${1:max_op} = [](${2:ll} x, ${2} y) { return max(x, y); };",
-      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, numeric_limits<${2}>::lowest(), ${1});  // ${4}: size n or vector<${2}>",
-      "// ${3}.point_set(i, x);  ${3}.range_query(l, r);"
+      "auto ${1:max_op} = [](${2:long long} x, ${2} y) { return max(x, y); };",
+      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, numeric_limits<${2}>::lowest(), ${1});  // ${4}: size n or 0-indexed vector",
+      "// ${3}.point_set(i, x); ${3}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range maximum (identity = numeric_limits lowest)."
+    "description": "Instantiate SegTree for range maximum (identity = numeric_limits lowest, 0-indexed [l, r))."
   },
   "SegTree: GCD": {
     "prefix": [
       "cp-seg-gcd"
     ],
     "body": [
-      "auto ${1:gcd_op} = [](${2:ll} x, ${2} y) { return gcd(x, y); };",
-      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, 0, ${1});  // ${4}: size n or vector<${2}>",
-      "// ${3}.point_set(i, x);  ${3}.range_query(l, r);"
+      "auto ${1:gcd_op} = [](${2:long long} x, ${2} y) { return gcd(x, y); };",
+      "SegTree<${2}, decltype(${1})> ${3:seg}(${4:a}, 0, ${1});  // ${4}: size n or 0-indexed vector",
+      "// ${3}.point_set(i, x); ${3}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range gcd (identity = 0)."
+    "description": "Instantiate SegTree for range gcd (identity = 0, 0-indexed [l, r))."
   },
   "SegTree: XOR": {
     "prefix": [
       "cp-seg-xor"
     ],
     "body": [
-      "SegTree<${1:ll}, bit_xor<${1}>> ${2:seg}(${3:a}, 0, bit_xor<${1}>());  // ${3}: size n or vector<${1}>",
-      "// ${2}.point_update(i, x);  ${2}.range_query(l, r);"
+      "SegTree<${1:long long}, bit_xor<${1}>> ${2:seg}(${3:a}, 0, bit_xor<${1}>());  // ${3}: size n or 0-indexed vector",
+      "// ${2}.point_update(i, x); ${2}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range xor (identity = 0)."
+    "description": "Instantiate SegTree for range xor (identity = 0, 0-indexed [l, r))."
   },
   "SegTree: Product mod": {
     "prefix": [
       "cp-seg-mulmod"
     ],
     "body": [
-      "auto ${1:mul_op} = [](ll x, ll y) { return x * y % MOD_VALUE; };",
-      "SegTree<ll, decltype(${1})> ${2:seg}(${3:a}, 1, ${1});  // ${3}: size n or vll (values already reduced mod MOD_VALUE)",
-      "// ${2}.point_set(i, x);  ${2}.range_query(l, r);"
+      "auto ${1:mul_op} = [](long long x, long long y) { return x * y % MOD_VALUE; };",
+      "SegTree<long long, decltype(${1})> ${2:seg}(${3:a}, 1, ${1});  // ${3}: size n or 0-indexed vector",
+      "// ${2}.point_set(i, x); ${2}.range_query(l, r) [0-indexed [l, r));"
     ],
-    "description": "Instantiate SegTree for range product modulo MOD_VALUE (needs the boilerplate macro)."
+    "description": "Instantiate SegTree for range product modulo MOD_VALUE."
   },
   "SegTree: Min with index": {
     "prefix": [
       "cp-seg-minidx"
     ],
     "body": [
-      "using ${1:Node} = pair<${2:ll}, int>;  // (value, index)",
+      "using ${1:Node} = pair<${2:long long}, int>;  // (value, 0-indexed index)",
       "auto ${3:argmin_op} = [](${1} x, ${1} y) { return min(x, y); };",
       "SegTree<${1}, decltype(${3})> ${4:seg}(${5:n}, ${1}(numeric_limits<${2}>::max(), -1), ${3});",
       "for (int i = 0; i < ${5}; i++) ${4}.point_set(i, {${6:a}[i], i});",
-      "// ${4}.range_query(l, r).first = min value, .second = index of it"
+      "// ${4}.range_query(l, r).first = min value, .second = 0-indexed index of it"
     ],
-    "description": "SegTree storing (value, index) pairs: range min and where it occurs (ties -> smaller index)."
+    "description": "SegTree storing (value, index) pairs: range min and its 0-indexed index."
   },
   "SegTree: Max with index": {
     "prefix": [
       "cp-seg-maxidx"
     ],
     "body": [
-      "using ${1:Node} = pair<${2:ll}, int>;  // (value, -index) so ties resolve to the smaller index",
+      "using ${1:Node} = pair<${2:long long}, int>;  // (value, -index) so ties resolve to smaller index",
       "auto ${3:argmax_op} = [](${1} x, ${1} y) { return max(x, y); };",
       "SegTree<${1}, decltype(${3})> ${4:seg}(${5:n}, ${1}(numeric_limits<${2}>::lowest(), 0), ${3});",
       "for (int i = 0; i < ${5}; i++) ${4}.point_set(i, {${6:a}[i], -i});",
-      "// auto res = ${4}.range_query(l, r);  value = res.first, index = -res.second"
+      "// auto res = ${4}.range_query(l, r); value = res.first, index = -res.second (0-indexed)"
     ],
-    "description": "SegTree storing (value, -index) pairs: range max and where it occurs (ties -> smaller index)."
+    "description": "SegTree storing (value, -index) pairs: range max and its 0-indexed index."
   },
   "SegTree: Custom monoid": {
     "prefix": [
       "cp-seg-custom"
     ],
     "body": [
-      "struct ${1:Node} { ${2:ll} ${3:val}; };",
+      "struct ${1:Node} { ${2:long long} ${3:val}; };",
       "auto ${4:merge_op} = [](const ${1} &x, const ${1} &y) { return ${1}{ $0 }; };",
       "SegTree<${1}, decltype(${4})> ${5:seg}(${6:n}, ${1}{}, ${4});  // identity ${1}{} must satisfy merge(id, x) == x"
     ],
-    "description": "Skeleton for a SegTree with a custom node type and merge lambda."
+    "description": "Skeleton for SegTree with custom node struct and merge lambda (0-indexed interface)."
   }
 }
