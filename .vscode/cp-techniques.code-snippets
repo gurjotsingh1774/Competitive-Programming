@@ -302,5 +302,57 @@
       "}"
     ],
     "description": "Mo’s Algorithm - Competitive programming template"
+  },
+  "Floyd’s Cycle Detection (Tortoise and Hare)": {
+    "prefix": [
+      "cp-floyd-cycle",
+      "cp-tortoise-hare",
+      "cp-cycle-detect"
+    ],
+    "body": [
+      "// Floyd's Cycle Detection (Tortoise & Hare) on functional array a[i] = next index from i",
+      "struct FloydCycle {",
+      "    const vector<int>& a;",
+      "    int n;",
+      "",
+      "    FloydCycle(const vector<int>& a) : a(a), n((int)a.size()) {}",
+      "",
+      "    // 1. Checks whether a cycle exists reachable from start: O(n) time, O(1) space",
+      "    bool detect(int start = 0) const {",
+      "        if (start < 0 || start >= n) return false;",
+      "        int slow = start, fast = start;",
+      "        while (fast >= 0 && fast < n && a[fast] >= 0 && a[fast] < n) {",
+      "            slow = a[slow];",
+      "            fast = a[a[fast]];",
+      "            if (slow == fast) return true;",
+      "        }",
+      "        return false;",
+      "    }",
+      "",
+      "    // 2. Finds the entry node (start of loop) reachable from start (-1 if no cycle): O(n) time, O(1) space",
+      "    int find_start(int start = 0) const {",
+      "        if (start < 0 || start >= n) return -1;",
+      "        int slow = start, fast = start;",
+      "        bool has_cycle = false;",
+      "        while (fast >= 0 && fast < n && a[fast] >= 0 && a[fast] < n) {",
+      "            slow = a[slow];",
+      "            fast = a[a[fast]];",
+      "            if (slow == fast) {",
+      "                has_cycle = true;",
+      "                break;",
+      "            }",
+      "        }",
+      "        if (!has_cycle) return -1;",
+      "",
+      "        int p1 = start, p2 = slow;",
+      "        while (p1 != p2) {",
+      "            p1 = a[p1];",
+      "            p2 = a[p2];",
+      "        }",
+      "        return p1;",
+      "    }",
+      "};"
+    ],
+    "description": "Floyd's Cycle Detection Algorithm (Tortoise and Hare) on a functional graph / successor array where a[i] = next index from i. Provides detect() and find_start() in O(n) time and O(1) space."
   }
 }

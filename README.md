@@ -1,6 +1,6 @@
 # Competitive Programming Toolkit & C++ Library
 
-A high-performance, battle-tested competitive programming library and workspace featuring **231 production-grade C++ snippets** organized across 32 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
+A high-performance, battle-tested competitive programming library and workspace featuring **237 production-grade C++ snippets** organized across 33 domain-specific modules, automated compilation scripts with strict GCC sanitizer enforcement, automated differential stress-testing tooling, and editor optimizations for VS Code.
 
 ---
 
@@ -44,6 +44,7 @@ Designed for competitive programming on platforms like **Codeforces**, **AtCoder
 │   ├── cp-templates.code-snippets              # Contest boilerplate, macros, fast I/O, debug print
 │   ├── cp-techniques.code-snippets             # Coordinate compression, 2D prefix sums, bit tricks
 │   ├── cp-segtree.code-snippets                # Iterative SegTree (Monoid) point and range queries
+│   ├── cp-sparse-table.code-snippets           # Sparse Table for static O(1) RMQ, Range Max, Range GCD
 │   ├── cp-lichao-tree.code-snippets            # Li Chao Segment Tree (dynamic line insertion)
 │   ├── cp-lazy-segtree.code-snippets           # Lazy Segment Tree (ACL style range ops)
 │   ├── cp-persistent-segtree.code-snippets     # Persistent SegTree (PST) & Lazy PST (Flip/Sum)
@@ -192,7 +193,7 @@ fast_hash_set<ll> st;
 
 ---
 
-## Modular Snippets Catalog (231 Snippets across 32 Files)
+## Modular Snippets Catalog (237 Snippets across 33 Files)
 
 ### Module Breakdown
 
@@ -201,6 +202,7 @@ fast_hash_set<ll> st;
 | [`cp-templates.code-snippets`](./.vscode/cp-templates.code-snippets) | Templates & Prelude | **3** | Full contest template, competitive prelude/types, debug printer. |
 | [`cp-techniques.code-snippets`](./.vscode/cp-techniques.code-snippets) | Techniques & Tricks | **9** | Coordinate compression (`Compressor`), 2D prefix sums, submask iteration, bit tricks. |
 | [`cp-segtree.code-snippets`](./.vscode/cp-segtree.code-snippets) | Segment Trees (Basic) | **10** | Iterative SegTree (Monoid), point set/update, range queries. |
+| [`cp-sparse-table.code-snippets`](./.vscode/cp-sparse-table.code-snippets) | Sparse Table (RMQ) | **6** | Static Range Minimum Queries (RMQ), Range Max, Range GCD in O(1) time. |
 | [`cp-lichao-tree.code-snippets`](./.vscode/cp-lichao-tree.code-snippets) | Li Chao Tree | **2** | Dynamic line insertion $y = mx + b$ and point minimum/maximum queries. |
 | [`cp-lazy-segtree.code-snippets`](./.vscode/cp-lazy-segtree.code-snippets) | Lazy Segment Trees | **9** | Range Add/Set/Affine/Flip with Range Sum/Min/Max (ACL style). |
 | [`cp-persistent-segtree.code-snippets`](./.vscode/cp-persistent-segtree.code-snippets) | Persistent SegTree | **15** | Standard PST, Lazy PST Flip (Hashing), Lazy PST Range Add & Sum (Rollbacks). |

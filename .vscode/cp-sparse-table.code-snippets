@@ -1,0 +1,147 @@
+{
+  "Sparse Table (Range Minimum Query - RMQ)": {
+    "prefix": [
+      "cp-sparse-table",
+      "cp-st",
+      "cp-rmq"
+    ],
+    "body": [
+      "// Sparse Table for static range minimum queries (RMQ) in O(1) time after O(n log n) build.",
+      "struct SparseTable {",
+      "    int n = 0, K = 0;",
+      "    vector<int> lg;",
+      "    vector<vector<int>> st;",
+      "",
+      "    SparseTable() = default;",
+      "    SparseTable(const vector<int>& a) {",
+      "        if (!a.empty()) init(a);",
+      "    }",
+      "",
+      "    void init(const vector<int>& a) {",
+      "        n = (int)a.size();",
+      "        lg.assign(n + 1, 0);",
+      "        for (int i = 2; i <= n; i++)",
+      "            lg[i] = lg[i / 2] + 1;",
+      "",
+      "        K = lg[n];",
+      "        st.assign(K + 1, vector<int>(n));",
+      "",
+      "        // Level 0: intervals of length 1",
+      "        st[0] = a;",
+      "",
+      "        // Build intervals of length 2^k",
+      "        for (int k = 1; k <= K; k++) {",
+      "            int len = 1 << k;",
+      "            int half = len >> 1;",
+      "",
+      "            for (int i = 0; i + len <= n; i++) {",
+      "                st[k][i] = min(",
+      "                    st[k - 1][i],",
+      "                    st[k - 1][i + half]",
+      "                );",
+      "            }",
+      "        }",
+      "    }",
+      "",
+      "    // Minimum on inclusive range [l, r]",
+      "    int query(int l, int r) const {",
+      "        int k = lg[r - l + 1];",
+      "        return min(",
+      "            st[k][l],",
+      "            st[k][r - (1 << k) + 1]",
+      "        );",
+      "    }",
+      "};"
+    ],
+    "description": "Sparse Table for static Range Minimum Queries (RMQ). Precomputes in O(n log n) time and space; answers queries on inclusive range [l, r] in O(1) time."
+  },
+  "Generic Sparse Table (Custom Idempotent Op)": {
+    "prefix": [
+      "cp-generic-sparse-table",
+      "cp-gst"
+    ],
+    "body": [
+      "// Generic Sparse Table for any idempotent operation (min, max, gcd, bitwise and/or) in O(1) query.",
+      "template <typename T, class Op>",
+      "struct GenericSparseTable {",
+      "    int n = 0, K = 0;",
+      "    vector<int> lg;",
+      "    vector<vector<T>> st;",
+      "    Op op;",
+      "",
+      "    GenericSparseTable() = default;",
+      "    GenericSparseTable(const vector<T>& a, Op op) : op(op) {",
+      "        if (!a.empty()) init(a);",
+      "    }",
+      "",
+      "    void init(const vector<T>& a) {",
+      "        n = (int)a.size();",
+      "        lg.assign(n + 1, 0);",
+      "        for (int i = 2; i <= n; i++)",
+      "            lg[i] = lg[i / 2] + 1;",
+      "",
+      "        K = lg[n];",
+      "        st.assign(K + 1, vector<T>(n));",
+      "        st[0] = a;",
+      "",
+      "        for (int k = 1; k <= K; k++) {",
+      "            int len = 1 << k;",
+      "            int half = len >> 1;",
+      "            for (int i = 0; i + len <= n; i++) {",
+      "                st[k][i] = op(st[k - 1][i], st[k - 1][i + half]);",
+      "            }",
+      "        }",
+      "    }",
+      "",
+      "    T query(int l, int r) const {",
+      "        int k = lg[r - l + 1];",
+      "        return op(st[k][l], st[k][r - (1 << k) + 1]);",
+      "    }",
+      "};"
+    ],
+    "description": "Generic Sparse Table for static range queries with any idempotent operation f(x, x) = x (min, max, gcd, etc.) in O(1) time."
+  },
+  "SparseTable: Instantiate (RMQ Min)": {
+    "prefix": [
+      "cp-st-init",
+      "cp-st-min",
+      "cp-sparse-table-init"
+    ],
+    "body": [
+      "SparseTable ${1:sp}(${2:a});  // 0-indexed inclusive [l, r]",
+      "// int min_val = ${1:sp}.query(${3:l}, ${4:r});"
+    ],
+    "description": "Instantiate 0-indexed SparseTable over vector a for O(1) range minimum queries [l, r]."
+  },
+  "SparseTable: Instantiate (Range Max)": {
+    "prefix": [
+      "cp-st-max"
+    ],
+    "body": [
+      "auto ${1:max_op} = [](${2:int} x, ${2:int} y) { return max(x, y); };",
+      "GenericSparseTable<${2:int}, decltype(${1:max_op})> ${3:sp_max}(${4:a}, ${1:max_op});  // 0-indexed inclusive [l, r]",
+      "// ${2:int} max_val = ${3:sp_max}.query(${5:l}, ${6:r});"
+    ],
+    "description": "Instantiate GenericSparseTable over vector a for O(1) range maximum queries [l, r]."
+  },
+  "SparseTable: Instantiate (Range GCD)": {
+    "prefix": [
+      "cp-st-gcd"
+    ],
+    "body": [
+      "auto ${1:gcd_op} = [](${2:int} x, ${2:int} y) { return std::gcd(x, y); };",
+      "GenericSparseTable<${2:int}, decltype(${1:gcd_op})> ${3:sp_gcd}(${4:a}, ${1:gcd_op});  // 0-indexed inclusive [l, r]",
+      "// ${2:int} gcd_val = ${3:sp_gcd}.query(${5:l}, ${6:r});"
+    ],
+    "description": "Instantiate GenericSparseTable over vector a for O(1) range GCD queries [l, r]."
+  },
+  "SparseTable: Range Query": {
+    "prefix": [
+      "cp-st-query"
+    ],
+    "body": [
+      "${1:sp}.query(${2:l}, ${3:r})"
+    ],
+    "description": "O(1) range query on SparseTable over inclusive range [l, r]."
+  }
+}
